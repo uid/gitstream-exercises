@@ -1,0 +1,16 @@
+{
+  "name": "gitstream-exercises",
+  "version": "1.0.0",
+  "description": "Exercises for use with GitStream, the interactive Git tutor",
+  "main": "index.html",
+  "author": "Nick Hynes",
+  "license": "MIT",
+  "repository": "https://github.com/nhynes/gitstream-exercises.git",
+  "devDependencies": {
+    "gulp": "^3.8.7",
+    "gulp-jscs": "^1.1.2",
+    "gulp-jshint": "^1.8.4",
+    "gulp-plumber": "^0.6.5",
+    "jshint-stylish": "^0.4.0"
+  }
+}
