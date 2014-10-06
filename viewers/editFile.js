@@ -4,7 +4,7 @@ var $ = require('zeptojs');
 
 module.exports = function() {
     return {
-        onDing: function(){
+        onDing: function() {
             $('#statusMessages').append('<h1 style="color:red">You ran out of time :( Try again!</h1>');
         },
         onHalt: function( haltState ) {
