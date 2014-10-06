@@ -1,34 +1,26 @@
 'use strict';
 
-var $ = require('zeptojs');
-
-module.exports = function() {
-    return {
-        onDing: function() {
-            $('#statusMessages').append('<h1 style="color:red">You ran out of time :( Try again!</h1>');
+module.exports = {
+    view: {
+        title: 'Add a new file to remote version control',
+        steps: {
+            createFile: 'Create a new file named &quot;hg_sux.txt&quot;, add it, and commit it with the message &quot;git is great&quot;',
+            committedFile: 'Push your commit'
         },
-        onHalt: function( haltState ) {
-            if ( haltState === 'pushed' ) {
-                $('#statusMessages').append('<h1 style="color:green">Good job! You did it!</h3>');
-            }
-        },
-
-        start: {
-            createFile: function() {
-                $('#statusMessages').append('<h3>Create a file named `hg_sux.txt`, add, and commit it with the message "git is great"</h1>');
-            }
-        },
-
+        initTime: '30000'
+    },
+    machine: {
         createFile: {
-            committedFile: function() {
-                $('#statusMessages').append('<h3>Right on! Now push your changes.</h3>');
+            createFile: function( stepOutput, cb ) {
+                var wrongMsg = stepOutput.prev;
+                cb('Expected &quot;git is great&quot; but was &quot;' + wrongMsg + '&quot;');
             }
         },
-
         committedFile: {
-            createFile: function() {
-                $('#statusMessages').append('<h3 style="color:red">Not quite. The file name should have been &quot;hg_sux.txt&quot;</h3>');
+            createFile: function( stepOutput, cb ) {
+                console.log( stepOutput );
+                cb('The file name should have been &quot;hg_sux.txt&quot;');
             }
         }
-    };
+    }
 };

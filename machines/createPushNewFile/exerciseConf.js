@@ -23,7 +23,7 @@ module.exports = function() {
             onReceive: function( repo, action, info, done ) {
                 this.fileExists( 'hg_sux.txt', function( exists ) {
                     if ( exists ) {
-                        done('pushed');
+                        done('done');
                     } else {
                         done('createFile');
                     }
@@ -31,6 +31,6 @@ module.exports = function() {
             }
         },
 
-        pushed: null
+        done: null
     };
 };

@@ -73,5 +73,5 @@
     "requireSpaceAfterLineComment": true,
     "disallowNewlineBeforeBlockStatements": true,
     "requireParenthesesAroundIIFE": true,
-    "requireLineFeedAtFileEnd": true,
+    "requireLineFeedAtFileEnd": true
 }
