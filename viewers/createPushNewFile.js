@@ -18,7 +18,6 @@ module.exports = {
         },
         committedFile: {
             createFile: function( stepOutput, cb ) {
-                console.log( stepOutput );
                 cb('The file name should have been &quot;hg_sux.txt&quot;');
             }
         }
