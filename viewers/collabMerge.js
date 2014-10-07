@@ -2,7 +2,7 @@
 
 module.exports = {
     view: {
-        title: 'Merge a collaborator&apos;s work',
+        title: 'Merging a collaborator&apos;s work',
         steps: {
             editFile: 'Implement the base case of <code>Multiply</code> in <code>Multiply.java</code>. Make sure the &quot;small&quot; tests pass and then commit your work.',
             pushCommit: 'Push your commit',
