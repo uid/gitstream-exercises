@@ -8,7 +8,8 @@ module.exports = function() {
 
         createFile: {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
-                if ( info.logMsg.toLowerCase() === 'git is great' ) {
+                var msgRe = /git is great\s*\n?/i;
+                if ( msgRe.test( info.logMsg.toLowerCase() ) )  {
                     gitDone();
                     stepDone('committedFile');
                 } else {
