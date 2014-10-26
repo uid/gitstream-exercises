@@ -1,4 +1,8 @@
+'use strict';
+
 var gulp = require('gulp'),
+    rimraf = require('rimraf'),
+    fs = require('fs'),
     jscs,
     jshint,
     plumber,
@@ -7,7 +11,10 @@ var gulp = require('gulp'),
     production = process.env.NODE_ENV === 'production',
 
     path = {
-        js: [ 'viewers/**/*.js', 'machines/**/*.js' ]
+        js: [ '**/*.js', '!node_modules/**/*', '!viewers.js', '!machines.js' ],
+        viewers: 'viewers.js',
+        machines: 'machines.js',
+        repos: 'starter_repos'
     };
 
 if ( !production ) {
@@ -17,7 +24,7 @@ if ( !production ) {
     stylish = require('jshint-stylish');
 }
 
-gulp.task( 'default', [ 'checkstyle' ] );
+gulp.task( 'default', [ 'checkstyle', 'clean', 'build' ] );
 
 gulp.task( 'checkstyle', function() {
     if ( production ) { return; }
@@ -26,5 +33,16 @@ gulp.task( 'checkstyle', function() {
         .pipe( plumber() )
         .pipe( jshint() )
         .pipe( jshint.reporter( stylish ) )
-        .pipe( jscs() )
+        .pipe( jscs() );
+});
+
+gulp.task( 'clean', function( cb ) {
+    var empty = function() {};
+    fs.unlink( path.viewers, empty );
+    fs.unlink( path.machines, empty  );
+    rimraf( path.repos, cb );
+});
+
+gulp.task( 'build', [ 'clean' ], function() {
+    require('./createx');
 });

@@ -5,7 +5,11 @@
 
 'use strict';
 
-var viewers = require('./viewers/index');
+var viewers = require('./viewers'),
+    machines = require('./machines');
 
-module.exports = viewers;
+module.exports = {
+    viewers: viewers,
+    machins: machines
+};
 

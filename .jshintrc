@@ -18,6 +18,8 @@
 
     "globals": {
         "require": true,
-        "module": true
+        "module": true,
+        "__dirname": true,
+        "process": true
     }
 }
