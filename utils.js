@@ -3,18 +3,20 @@
 var fs = require('fs'),
     path = require('path'),
     spawn = require('child_process').spawn,
-    EXERCISES = 'exercises',
+
+    SRC_DIR = path.join( __dirname, 'src' ),
+    EXERCISES_DIR = path.join( SRC_DIR, 'exercises' ),
     CONF_FILE = 'conf.js';
 
 module.exports = {
     getExercises: function( callback ) {
-        fs.readdir( path.join( __dirname, EXERCISES ), function( err, exercises ) {
+        fs.readdir( EXERCISES_DIR, function( err, exercises ) {
             var configs = {};
 
             if ( err ) { callback( err, null ); }
 
             exercises.map( function( exercise ) {
-                var exerciseConf = require( './' + path.join( EXERCISES, exercise, CONF_FILE ) ),
+                var exerciseConf = require( path.join( EXERCISES_DIR, exercise, CONF_FILE ) ),
                     globalAttrib;
 
                 for ( globalAttrib in exerciseConf.global ) {

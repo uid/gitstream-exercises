@@ -6,37 +6,32 @@ var utils = require('./utils'),
     fs = require('fs'),
     path = require('path'),
     spawn = require('child_process').spawn,
-    rmrf = require('rimraf').sync,
     toSource = require('tosource'),
 
-    REPO_BASE = path.join( __dirname, 'repo_base' ),
-    REPOS_DIR = path.join( __dirname, 'starter_repos' ),
+    SRC_DIR = path.join( __dirname, 'src' ),
+    EXERCISES_DIR = path.join( SRC_DIR, 'exercises' ),
+    STARTER_REPO_DIR = path.join( SRC_DIR, 'starter_repo' ),
+    REPO_TMP = path.join( STARTER_REPO_DIR, 'template' ),
+    REPO_CONTENTS = path.join( STARTER_REPO_DIR, 'contents' ),
+    RESOURCES_DIR_NAME = 'resources',
+
+    GEN_DIR = path.join( __dirname, 'exercises' ),
+    REPO_DIR_NAME = 'starting.git',
     MACHINES_FILE = path.join( __dirname, 'machines.js' ),
     VIEWERS_FILE = path.join( __dirname, 'viewers.js' ),
+
     ANGLER_URL = 'http://localhost/hooks';
 
 function toModule( obj ) {
     return 'module.exports = ' + toSource( obj );
 }
 
-function cleanUp() {
-    try {
-        rmrf( REPOS_DIR );
-        fs.mkdirSync( REPOS_DIR );
-        fs.unlinkSync( MACHINES_FILE );
-        fs.unlinkSync( VIEWERS_FILE );
-    } catch ( e ) {}
-}
-
 function abortAbort( msg ) {
-    cleanUp();
     throw Error( msg );
 }
 
-function createNewRepo( repoPath, done ) {
-    var template = path.join( REPO_BASE, 'template' ),
-        starter = path.join( REPO_BASE, 'starter' ),
-        cp = spawn( 'cp', [ '-rTf', starter, repoPath ] ),
+function createNewRepo( repoDir, done ) {
+    var cp = spawn( 'cp', [ '-rTf', REPO_CONTENTS, repoDir ] ),
         cpErr = '';
 
     cp.stderr.on( 'data', function( data ) {
@@ -46,10 +41,10 @@ function createNewRepo( repoPath, done ) {
     cp.on( 'close', function( cpRet ) {
         if ( cpRet !== 0 ) { return done( cpErr ); }
 
-        utils.git( __dirname, 'init', [ '--template=' + template, repoPath ], function( err ) {
+        utils.git( __dirname, 'init', [ '--template=' + REPO_TMP, repoDir ], function( err ) {
             if ( err ) { return done( err ); }
 
-            utils.git( repoPath, 'config', [ 'angler.url', ANGLER_URL ], function( err ) {
+            utils.git( repoDir, 'config', [ 'angler.url', ANGLER_URL ], function( err ) {
                 if ( err ) { return done( err ); }
 
                 done();
@@ -58,8 +53,8 @@ function createNewRepo( repoPath, done ) {
     });
 }
 
-function gitAddCommit( repoPath, commitParams, done ) {
-    var git = utils.git.bind( null, repoPath );
+function gitAddCommit( repo, commitParams, done ) {
+    var git = utils.git.bind( null, repo );
 
     git( 'add', ':/', function( err ) {
         if ( err ) { return done( err ); }
@@ -73,49 +68,78 @@ function gitAddCommit( repoPath, commitParams, done ) {
 utils.getExercises( function( err, exerciseConfs ) {
     if ( err ) { throw Error( err ); }
 
-    function addCommits( err ) {
+
+    function addCommits( repoConf, repoPath, err ) {
         if ( err ) { abortAbort( err ); }
 
-        if ( repo && repo.length ) {
+        if ( repoConf && repoConf.length ) {
             return;
         } else {
             gitAddCommit( repoPath, { msg: 'Initial commit' }, abortAbort );
         }
     }
 
-    var machines = {},
-        viewers = { _titles: [] },
-        exercise,
-        machine,
-        viewer,
-        repo,
-        repoPath;
+    function copyResources( from, to, cb ) {
+        var cp = spawn( 'cp', [ '-rTf', from, to ] ),
+            cpErr = '';
 
-    try {
-        fs.statSync( REPOS_DIR );
-        cleanUp();
-    } catch ( e ) {
-        if ( e.code === 'ENOENT' ) {
-            fs.mkdirSync( REPOS_DIR );
-        } else {
-            throw e;
+        cp.stderr.on( 'data', function( data ) {
+            cpErr += data.toString();
+        });
+
+        cp.on( 'close', function( cpRet ) {
+            if ( cpRet !== 0 ) { cb( cpErr ); }
+        } );
+    }
+
+    function createExercise( currentExercise, conf, err ) {
+        if ( err ) { abortAbort( err ); }
+
+        // copy the exercise resources into the output dir
+        var resourcesDir = path.join( EXERCISES_DIR, currentExercise, RESOURCES_DIR_NAME ),
+            outputDir = path.join( GEN_DIR, currentExercise ),
+            repoPath = path.join( outputDir, REPO_DIR_NAME );
+
+        fs.stat( resourcesDir, function( err ) {
+            if ( err ) { return; }
+            copyResources( resourcesDir, outputDir, abortAbort );
+        });
+
+        // create the starting repo
+        createNewRepo( repoPath, addCommits.bind( null, conf.repo, repoPath ) );
+    }
+
+    fs.mkdir( GEN_DIR, function( err ) {
+        if ( err ) { abortAbort( err ); }
+
+        var machines = {},
+            viewers = { _titles: [] },
+            exercise,
+            exerciseConf,
+            machineConf,
+            viewerConf,
+            repoConf,
+            outputDir;
+
+        for ( exercise in exerciseConfs ) {
+            // get the config params
+            exerciseConf = exerciseConfs[ exercise ];
+            machineConf = exerciseConf.machine;
+            viewerConf = exerciseConf.viewer;
+            repoConf = exerciseConf.repo; // TODO: repo auto-init
+
+            // split the exercise configs
+            machines[ exercise ] = machineConf;
+            viewers[ exercise ] = viewerConf;
+            viewers._titles.push({ exercise: exercise, title: viewerConf.title });
+
+            // make the output directory
+            outputDir = path.join( GEN_DIR, exercise );
+            fs.mkdir( outputDir, createExercise.bind( null, exercise, exerciseConf ) );
+
         }
-    }
 
-    for ( exercise in exerciseConfs ) {
-        machine = exerciseConfs[ exercise ].machine,
-        viewer = exerciseConfs[ exercise ].viewer,
-        repo = exerciseConfs[ exercise ].repo,
-        repoPath = path.join( REPOS_DIR, exercise + '.git' );
-
-        // split the exercise configs
-        machines[ exercise ] = machine;
-        viewers[ exercise ] = viewer;
-        viewers._titles.push({ exercise: exercise, title: viewer.title });
-
-        createNewRepo( repoPath, addCommits );
-    }
-
-    fs.writeFile( MACHINES_FILE, toModule(machines) );
-    fs.writeFile( VIEWERS_FILE, toModule(viewers) );
+        fs.writeFile( MACHINES_FILE, toModule(machines) );
+        fs.writeFile( VIEWERS_FILE, toModule(viewers) );
+    });
 });

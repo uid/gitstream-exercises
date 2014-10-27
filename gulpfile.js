@@ -2,7 +2,7 @@
 
 var gulp = require('gulp'),
     rimraf = require('rimraf'),
-    fs = require('fs'),
+    q = require('q'),
     jscs,
     jshint,
     plumber,
@@ -12,9 +12,7 @@ var gulp = require('gulp'),
 
     path = {
         js: [ '**/*.js', '!node_modules/**/*', '!viewers.js', '!machines.js' ],
-        viewers: 'viewers.js',
-        machines: 'machines.js',
-        repos: 'starter_repos'
+        generated: [ 'viewers.js', 'machines.js', 'exercises' ]
     };
 
 if ( !production ) {
@@ -37,10 +35,20 @@ gulp.task( 'checkstyle', function() {
 });
 
 gulp.task( 'clean', function( cb ) {
-    var empty = function() {};
-    fs.unlink( path.viewers, empty );
-    fs.unlink( path.machines, empty  );
-    rimraf( path.repos, cb );
+    var rmDeferreds = path.generated.map( function() {
+            return q.defer();
+        }),
+        rmPromises = rmDeferreds.map( function( deferred ) {
+            return deferred.promise;
+        });
+
+    q.all( rmPromises ).done( function() {
+        cb();
+    });
+
+    path.generated.map( function( file, i ) {
+        rimraf( file, rmDeferreds[i].resolve );
+    });
 });
 
 gulp.task( 'build', [ 'clean' ], function() {
