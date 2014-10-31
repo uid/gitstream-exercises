@@ -46,10 +46,10 @@ module.exports = {
     // definition for client state machine and view
     viewer: {
         // the steps shown in the list of steps
-        title: 'Add a new file to remote version control',
+        title: 'Adding a new file to remote version control',
 
         steps: {
-            createFile: 'Create a new file named &quot;' + FILE_EXPECTED + '&quot;, add it, and commit it with the message &quot;' + MSG_EXPECTED + '&quot;',
+            createFile: 'Create a new file named "' + FILE_EXPECTED + '", add it, and commit it with the message "' + MSG_EXPECTED + '"',
             committedFile: 'Push your commit'
         },
 
@@ -58,12 +58,12 @@ module.exports = {
             createFile: { // previous state
                 createFile: function( stepOutput, cb ) { // newly stepped state
                     var wrongMsg = stepOutput.prev; // prev is output from leaving prev state
-                    cb('Expected &quot;' + MSG_EXPECTED + '&quot; but was &quot;' + wrongMsg + '&quot;');
+                    cb('Expected "' + MSG_EXPECTED + '" but was "' + wrongMsg + '"');
                 }
             },
             committedFile: {
                 createFile: function( stepOutput, cb ) {
-                    cb('The file name should have been &quot;' + FILE_EXPECTED + '&quot;');
+                    cb('The file name should have been "' + FILE_EXPECTED + '"');
                 }
             }
         }
