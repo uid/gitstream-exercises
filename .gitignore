@@ -1,4 +1,6 @@
 node_modules/
 exercises/
+!src/exercises/
 viewers.js
 machines.js
+repos.js

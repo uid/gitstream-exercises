@@ -5,7 +5,6 @@
 var utils = require('./utils'),
     fs = require('fs'),
     path = require('path'),
-    spawn = require('child_process').spawn,
     esprima = require('esprima'),
     escodegen = require('escodegen'),
     ast = require('./ast'),
@@ -21,6 +20,7 @@ var utils = require('./utils'),
     REPO_DIR_NAME = 'starting.git',
     MACHINES_FILE = path.join( __dirname, 'machines.js' ),
     VIEWERS_FILE = path.join( __dirname, 'viewers.js' ),
+    REPOS_FILE = path.join( __dirname, 'repos.js' ),
 
     ANGLER_URL = 'http://localhost/hooks';
 
@@ -29,15 +29,8 @@ function abortAbort( msg ) {
 }
 
 function createNewRepo( repoDir, done ) {
-    var cp = spawn( 'cp', [ '-rTf', REPO_CONTENTS, repoDir ] ),
-        cpErr = '';
-
-    cp.stderr.on( 'data', function( data ) {
-        cpErr += data.toString();
-    });
-
-    cp.on( 'close', function( cpRet ) {
-        if ( cpRet !== 0 ) { return done( cpErr ); }
+    utils.cp( REPO_CONTENTS, repoDir, function( err ) {
+        if ( err ) { done( err ); }
 
         utils.git( __dirname, 'init', [ '--template=' + REPO_TMP, repoDir ], function( err ) {
             if ( err ) { return done( err ); }
@@ -51,68 +44,36 @@ function createNewRepo( repoDir, done ) {
     });
 }
 
-function gitAddCommit( repo, commitParams, done ) {
-    var git = utils.git.bind( null, repo );
+function createExerciseDir( currentExercise, conf, err ) {
+    if ( err ) { abortAbort( err ); }
 
-    git( 'add', ':/', function( err ) {
-        if ( err ) { return done( err ); }
+    // copy the exercise resources into the output dir
+    var resourcesDir = path.join( EXERCISES_DIR, currentExercise, RESOURCES_DIR_NAME ),
+        outputDir = path.join( GEN_DIR, currentExercise ),
+        repoPath = path.join( outputDir, REPO_DIR_NAME );
 
-        git( 'commit', [ '-m', commitParams.msg ], function( err ) {
-            if ( err ) { return done( err ); }
+    fs.stat( resourcesDir, function( err ) {
+        if ( err ) { return; } // no resource dir
+        utils.cp( resourcesDir, outputDir, function( err ) {
+            if ( err ) { abortAbort( err ); }
         });
+    });
+
+    // create the starting repo
+    createNewRepo( repoPath, function( err ) {
+        if ( err ) { abortAbort( err ); }
     });
 }
 
 utils.getExercises( function( err, exerciseConfs ) {
     if ( err ) { abortAbort( err ); }
 
-    function addCommits( repoConf, repoPath, err ) {
-        if ( err ) { abortAbort( err ); }
-
-        if ( repoConf && repoConf.length ) {
-            return;
-        } else {
-            gitAddCommit( repoPath, { msg: 'Initial commit' }, abortAbort );
-        }
-    }
-
-    function copyResources( from, to, cb ) {
-        var cp = spawn( 'cp', [ '-rTf', from, to ] ),
-            cpErr = '';
-
-        cp.stderr.on( 'data', function( data ) {
-            cpErr += data.toString();
-        });
-
-        cp.on( 'close', function( cpRet ) {
-            if ( cpRet !== 0 ) { cb( cpErr ); }
-        } );
-    }
-
-    function createExerciseDir( currentExercise, conf, err ) {
-        if ( err ) { abortAbort( err ); }
-
-        // copy the exercise resources into the output dir
-        var resourcesDir = path.join( EXERCISES_DIR, currentExercise, RESOURCES_DIR_NAME ),
-            outputDir = path.join( GEN_DIR, currentExercise ),
-            repoPath = path.join( outputDir, REPO_DIR_NAME );
-
-        fs.stat( resourcesDir, function( err ) {
-            if ( err ) { return; }
-            copyResources( resourcesDir, outputDir, abortAbort );
-        });
-
-        // create the starting repo
-        createNewRepo( repoPath, addCommits.bind( null, conf.repo, repoPath ) );
-    }
-
     fs.mkdir( GEN_DIR, function( err ) {
         if ( err ) { abortAbort( err ); }
 
         var machines = [],
             viewers = [],
-            machinesModule,
-            viewersModule,
+            repos = [],
             outputDir;
 
         // split the configs
@@ -120,23 +81,30 @@ utils.getExercises( function( err, exerciseConfs ) {
             var exerciseConf = require( exerciseConfs[ exercise ].path ),
                 confAst = esprima.parse( exerciseConfs[ exercise ].data ),
                 combinedScopeExprs = ast.getCombinedScopeExprs( confAst ),
-                confTrees = ast.getConfSubtrees( confAst ),
-
-                machineSubmodule = ast.createSubmodule( combinedScopeExprs, confTrees.machine ),
-                viewerSubmodule = ast.createSubmodule( combinedScopeExprs, confTrees.viewer );
-
-            machines.push( ast.createProperty( exercise, machineSubmodule ) );
-            viewers.push( ast.createProperty( exercise, viewerSubmodule ) );
+                confTrees = ast.getConfSubtrees( confAst );
 
             // make the output directory
             outputDir = path.join( GEN_DIR, exercise );
             fs.mkdir( outputDir, createExerciseDir.bind( null, exercise, exerciseConf ) );
+
+            function mkConfSubmodule( confAst ) {
+                var submodule = ast.createSubmodule( combinedScopeExprs, confAst );
+                return ast.createProperty( exercise, submodule );
+            }
+
+            machines.push( mkConfSubmodule( confTrees.machine ) );
+            viewers.push( mkConfSubmodule( confTrees.viewer ) );
+            repos.push( mkConfSubmodule( confTrees.repo || ast.createObject([]) ) );
         });
 
-        machinesModule = ast.createModule( null, ast.createObject( machines ) );
-        viewersModule = ast.createModule( null, ast.createObject( viewers ) );
+        function writeMod( file, props ) {
+            var mod = ast.createModule( null, ast.createObject( props ) );
+            fs.writeFile( file, escodegen.generate( mod ) );
+        }
 
-        fs.writeFile( MACHINES_FILE, escodegen.generate( machinesModule ) );
-        fs.writeFile( VIEWERS_FILE, escodegen.generate( viewersModule ) );
+        // write out the split configs
+        writeMod( MACHINES_FILE, machines );
+        writeMod( VIEWERS_FILE, viewers );
+        writeMod( REPOS_FILE, repos );
     });
 });

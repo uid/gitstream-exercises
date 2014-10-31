@@ -56,5 +56,18 @@ module.exports = {
                 cb( errOutput, output );
             });
         });
+    },
+
+    cp: function( from, to, cb ) {
+        var cp = spawn( 'cp', [ '-rTf', from, to ] ),
+            cpErr = '';
+
+        cp.stderr.on( 'data', function( data ) {
+            cpErr += data.toString();
+        });
+
+        cp.on( 'close', function( cpRet ) {
+            cb( cpRet !== 0 ? cpErr : null );
+        });
     }
 };

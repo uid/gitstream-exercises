@@ -41,7 +41,7 @@ module.exports = {
 
 
     createSubmodule: function( hidden, returned ) {
-        var priv = [].concat( hidden );
+        var priv = [].concat( hidden || [] );
         return this.createFunction(
             this.createBlockStatement( priv.concat( this.createReturn( returned ) ) ) );
     },
@@ -81,15 +81,15 @@ module.exports = {
     },
 
     getCombinedScopeExprs: function( programAst ) {
-        var self = this;
-        return self.astSelect( programAst, function( node ) {
-            // console.log( node );
+        return this.astSelect( programAst, function( node ) {
             return !( (node.type === 'ExpressionStatement' && node.expression.value === 'use strict') ||
-                     self.isConfExport( node ) );
-        }, { minDepth: 1, maxDepth: 1 } );
+                     this.isConfExport( node ) );
+        }.bind( this ), { depth: 1 } );
     },
 
     astSelect: function( node, test, opts, depth, selected ) {
+        if ( opts.depth ) { opts.minDepth = opts.maxDepth = opts.depth; }
+
         depth = depth || 0;
         selected = selected || [];
 
@@ -114,26 +114,41 @@ module.exports = {
     },
 
     getConfSubtrees: function( programAst ) {
-        var self = this,
-            confExport = self.astSelect( programAst, this.isConfExport,
-                                   { minDepth: 1, maxDepth: 1 } )[0].expression.right,
-            selectPropValue = function( tree, propName ) {
-                return self.astSelect( tree, function( node ) {
+        var confExport = this.astSelect( programAst, this.isConfExport, { depth: 1 } )[0]
+                .expression.right,
+
+            selectPropByName = function( tree, propName ) {
+                return this.astSelect( tree, function( node ) {
                     return node.type === 'Property' && node.key.name === propName;
-                }, { minDepth: 1, maxDepth: 1 } )[0].value;
+                }, { depth: 1 } );
+            }.bind( this ),
+
+            selectExported = function( propName ) {
+                var selected = selectPropByName( confExport, propName );
+                return selected.length ? selected[0].value : undefined;
             },
-            globalsSubtree = selectPropValue( confExport, 'global' ),
-            machineSubtree = selectPropValue( confExport, 'machine' ),
-            viewerSubtree = selectPropValue( confExport, 'viewer' ),
+            globalsSubtree = selectExported( 'global' ),
+            machineSubtree = selectExported( 'machine' ),
+            viewerSubtree = selectExported( 'viewer' ),
+            repoSubtree = selectExported( 'repo' ),
+
+            globals;
+
+        // move the globals into the separated subtrees (if there are globals)
+        if ( globalsSubtree ) {
             globals = globalsSubtree.properties;
 
-        // move the globals into the separated subtrees
-        machineSubtree.properties = globals.concat( machineSubtree.properties );
-        viewerSubtree.properties = globals.concat( viewerSubtree.properties );
+            machineSubtree.properties = globals.concat( machineSubtree.properties );
+            viewerSubtree.properties = globals.concat( viewerSubtree.properties );
+            if ( repoSubtree ) {
+                repoSubtree.properties = globals.concat( repoSubtree.properties );
+            }
+        }
 
         return {
             machine: machineSubtree,
-            viewer: viewerSubtree
+            viewer: viewerSubtree,
+            repo: repoSubtree
         };
     }
 };
