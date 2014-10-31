@@ -3,6 +3,7 @@
 var fs = require('fs'),
     path = require('path'),
     spawn = require('child_process').spawn,
+    q = require('q'),
 
     SRC_DIR = path.join( __dirname, 'src' ),
     EXERCISES_DIR = path.join( SRC_DIR, 'exercises' ),
@@ -11,27 +12,30 @@ var fs = require('fs'),
 module.exports = {
     getExercises: function( callback ) {
         fs.readdir( EXERCISES_DIR, function( err, exercises ) {
-            var configs = {};
+            if ( err ) { return callback( err, null ); }
 
-            if ( err ) { callback( err, null ); }
+            var configs = {},
+                readFileDeferreds = exercises.map( function() {
+                    return q.defer();
+                }),
+                readFilePromises = readFileDeferreds.map( function( deferred ) {
+                    return deferred.promise;
+                });
 
-            exercises.map( function( exercise ) {
-                var exerciseConf = require( path.join( EXERCISES_DIR, exercise, CONF_FILE ) ),
-                    globalAttrib;
-
-                for ( globalAttrib in exerciseConf.global ) {
-                    exerciseConf.machine[ globalAttrib ] = exerciseConf.global[ globalAttrib ];
-                    exerciseConf.viewer[ globalAttrib ] = exerciseConf.global[ globalAttrib ];
-                }
-
-                configs[ exercise ] = {
-                    machine: exerciseConf.machine,
-                    viewer: exerciseConf.viewer,
-                    repo: exerciseConf.repo
-                };
+            q.all( readFilePromises ).done( function() {
+                callback( null, configs );
             });
 
-            callback( null, configs );
+            exercises.map( function( exercise, i ) {
+                var exerciseConfFile = path.join( EXERCISES_DIR, exercise, CONF_FILE );
+
+                fs.readFile( exerciseConfFile, function( err, data ) {
+                    if ( err ) { return callback( err, null ); }
+
+                    configs[ exercise ] = { path: exerciseConfFile, data: data.toString() };
+                    readFileDeferreds[ i ].resolve();
+                });
+            });
         });
     },
 

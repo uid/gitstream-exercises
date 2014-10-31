@@ -1,5 +1,8 @@
 'use strict';
 
+var FILE_EXPECTED = 'hello.txt',
+    MSG_EXPECTED = 'hello world';
+
 module.exports = {
     // conf that applies to both client and server
     global: {
@@ -12,21 +15,22 @@ module.exports = {
 
         createFile: {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
-                var msgRe = /git is great\s*\n?/i;
-                if ( msgRe.test( info.logMsg.toLowerCase() ) )  {
+                var commitMsg = this.parseCommitMsg( info.logMsg ),
+                    userInp = ( commitMsg.length > 1 ? '\n' : '' ) + commitMsg.join('\n');
+                if ( commitMsg[0].toLowerCase() === MSG_EXPECTED )  {
                     gitDone();
                     stepDone('committedFile');
                 } else {
-                    gitDone( 1, 'GitStream [COMMIT REJECTED] Incorrect log message.' +
-                                ' Expected "git is great" but was: "' + info.logMsg + '"' );
-                    stepDone( 'createFile', info.logMsg );
+                    gitDone( 1, 'GitStream: [COMMIT REJECTED] Incorrect log message.' +
+                                ' Expected "' + MSG_EXPECTED + '" but was: "' + userInp + '"' );
+                    stepDone( 'createFile', userInp );
                 }
             }
         },
 
         committedFile: {
             onReceive: function( repo, action, info, done ) {
-                this.fileExists( 'hg_sux.txt', function( exists ) {
+                this.fileExists( FILE_EXPECTED, function( exists ) {
                     if ( exists ) {
                         done('done');
                     } else {
@@ -45,7 +49,7 @@ module.exports = {
         title: 'Add a new file to remote version control',
 
         steps: {
-            createFile: 'Create a new file named &quot;hg_sux.txt&quot;, add it, and commit it with the message &quot;git is great&quot;',
+            createFile: 'Create a new file named &quot;' + FILE_EXPECTED + '&quot;, add it, and commit it with the message &quot;' + MSG_EXPECTED + '&quot;',
             committedFile: 'Push your commit'
         },
 
@@ -54,12 +58,12 @@ module.exports = {
             createFile: { // previous state
                 createFile: function( stepOutput, cb ) { // newly stepped state
                     var wrongMsg = stepOutput.prev; // prev is output from leaving prev state
-                    cb('Expected &quot;git is great&quot; but was &quot;' + wrongMsg + '&quot;');
+                    cb('Expected &quot;' + MSG_EXPECTED + '&quot; but was &quot;' + wrongMsg + '&quot;');
                 }
             },
             committedFile: {
                 createFile: function( stepOutput, cb ) {
-                    cb('The file name should have been &quot;hg_sux.txt&quot;');
+                    cb('The file name should have been &quot;' + FILE_EXPECTED + '&quot;');
                 }
             }
         }

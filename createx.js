@@ -6,7 +6,9 @@ var utils = require('./utils'),
     fs = require('fs'),
     path = require('path'),
     spawn = require('child_process').spawn,
-    toSource = require('tosource'),
+    esprima = require('esprima'),
+    escodegen = require('escodegen'),
+    ast = require('./ast'),
 
     SRC_DIR = path.join( __dirname, 'src' ),
     EXERCISES_DIR = path.join( SRC_DIR, 'exercises' ),
@@ -21,10 +23,6 @@ var utils = require('./utils'),
     VIEWERS_FILE = path.join( __dirname, 'viewers.js' ),
 
     ANGLER_URL = 'http://localhost/hooks';
-
-function toModule( obj ) {
-    return 'module.exports = ' + toSource( obj );
-}
 
 function abortAbort( msg ) {
     throw Error( msg );
@@ -66,8 +64,7 @@ function gitAddCommit( repo, commitParams, done ) {
 }
 
 utils.getExercises( function( err, exerciseConfs ) {
-    if ( err ) { throw Error( err ); }
-
+    if ( err ) { abortAbort( err ); }
 
     function addCommits( repoConf, repoPath, err ) {
         if ( err ) { abortAbort( err ); }
@@ -92,7 +89,7 @@ utils.getExercises( function( err, exerciseConfs ) {
         } );
     }
 
-    function createExercise( currentExercise, conf, err ) {
+    function createExerciseDir( currentExercise, conf, err ) {
         if ( err ) { abortAbort( err ); }
 
         // copy the exercise resources into the output dir
@@ -112,34 +109,34 @@ utils.getExercises( function( err, exerciseConfs ) {
     fs.mkdir( GEN_DIR, function( err ) {
         if ( err ) { abortAbort( err ); }
 
-        var machines = {},
-            viewers = { _titles: [] },
-            exercise,
-            exerciseConf,
-            machineConf,
-            viewerConf,
-            repoConf,
+        var machines = [],
+            viewers = [],
+            machinesModule,
+            viewersModule,
             outputDir;
 
-        for ( exercise in exerciseConfs ) {
-            // get the config params
-            exerciseConf = exerciseConfs[ exercise ];
-            machineConf = exerciseConf.machine;
-            viewerConf = exerciseConf.viewer;
-            repoConf = exerciseConf.repo; // TODO: repo auto-init
+        // split the configs
+        Object.keys( exerciseConfs ).forEach( function( exercise ) {
+            var exerciseConf = require( exerciseConfs[ exercise ].path ),
+                confAst = esprima.parse( exerciseConfs[ exercise ].data ),
+                combinedScopeExprs = ast.getCombinedScopeExprs( confAst ),
+                confTrees = ast.getConfSubtrees( confAst ),
 
-            // split the exercise configs
-            machines[ exercise ] = machineConf;
-            viewers[ exercise ] = viewerConf;
-            viewers._titles.push({ exercise: exercise, title: viewerConf.title });
+                machineSubmodule = ast.createSubmodule( combinedScopeExprs, confTrees.machine ),
+                viewerSubmodule = ast.createSubmodule( combinedScopeExprs, confTrees.viewer );
+
+            machines.push( ast.createProperty( exercise, machineSubmodule ) );
+            viewers.push( ast.createProperty( exercise, viewerSubmodule ) );
 
             // make the output directory
             outputDir = path.join( GEN_DIR, exercise );
-            fs.mkdir( outputDir, createExercise.bind( null, exercise, exerciseConf ) );
+            fs.mkdir( outputDir, createExerciseDir.bind( null, exercise, exerciseConf ) );
+        });
 
-        }
+        machinesModule = ast.createModule( null, ast.createObject( machines ) );
+        viewersModule = ast.createModule( null, ast.createObject( viewers ) );
 
-        fs.writeFile( MACHINES_FILE, toModule(machines) );
-        fs.writeFile( VIEWERS_FILE, toModule(viewers) );
+        fs.writeFile( MACHINES_FILE, escodegen.generate( machinesModule ) );
+        fs.writeFile( VIEWERS_FILE, escodegen.generate( viewersModule ) );
     });
 });
