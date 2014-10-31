@@ -11,7 +11,7 @@ exitcode=${respArgs[0]}
 
 for echoline in "${respArgs[@]:1}"
 do
-    echo "remote: $echoline"
+    echo "$echoline"
 done
 
 exit $exitcode
