@@ -15,3 +15,4 @@ git checkout master > /dev/null 2>&1
 git clean -df > /dev/null 2>&1
 git checkout :/ > /dev/null 2>&1
 git log --oneline --color --graph --decorate --all
+echo "GitStream: Follow the instructions in your browser!"
