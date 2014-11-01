@@ -61,7 +61,25 @@ function createExerciseDir( currentExercise ) {
     return q.all( pending );
 }
 
-utils.getExercises()
+// npm replaces all .gitignores with .npmignores on install. fix this.
+function replaceNPMIgnores( src ) {
+    return q.nfcall( fs.stat, src )
+    .then( function( stats ) {
+        if ( stats.isDirectory() ) {
+            return q.nfcall( fs.readdir, src )
+            .then( function( files ) {
+                return q.all( files.map( function( file ) {
+                    return replaceNPMIgnores( path.join( src, file ) );
+                }) );
+            });
+        } else if ( path.basename( src ) === '.npmignore' ) {
+            return q.nfcall( fs.rename, src, path.join( path.dirname( src ), '.gitignore' ) );
+        }
+    });
+}
+
+replaceNPMIgnores( SRC_DIR )
+.then( utils.getExercises )
 .done( function( exerciseConfs ) {
     return q.nfcall( fs.mkdir, GEN_DIR )
     .done( function() {
