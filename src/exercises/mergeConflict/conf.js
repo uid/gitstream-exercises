@@ -13,8 +13,15 @@ module.exports = {
 
         editFile: {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
-                this.simulateCollaboration( MULTIPLY_CONFLICT, MULTIPLY, 'Implemented Karatsuba', function() {
-                    gitDone();
+                var conflict = {
+                    msg: 'Implemented Karatsuba',
+                    files: [{
+                        src: MULTIPLY_CONFLICT,
+                        dest: MULTIPLY
+                    }]
+                };
+                this.addCommit( conflict, function( err ) {
+                    gitDone( Number(!!err), err );
                     stepDone('pushCommit');
                 });
             }
@@ -66,7 +73,7 @@ module.exports = {
         commits: [
             {
                 message: 'Initial commit',
-                author: 'Nick Hynes',
+                author: 'Nick Hynes <nhynes@mit.edu>', // must be in User <email> format
                 files: [ '.gitignore', '.classpath', '.project', 'src' ]
             }
         ]

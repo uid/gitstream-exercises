@@ -13,6 +13,7 @@ git checkout origin/master > /dev/null 2>&1
 git branch -f master > /dev/null 2>&1
 git checkout master > /dev/null 2>&1
 git clean -df > /dev/null 2>&1
+git reset HEAD :/ > /dev/null 2>&1
 git checkout :/ > /dev/null 2>&1
 git log --oneline --color --graph --decorate --all
 echo "GitStream: Follow the instructions in your browser!"
