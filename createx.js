@@ -8,6 +8,7 @@ var utils = require('./utils'),
     esprima = require('esprima'),
     escodegen = require('escodegen'),
     ast = require('./ast'),
+    q = require('q'),
 
     SRC_DIR = path.join( __dirname, 'src' ),
     EXERCISES_DIR = path.join( SRC_DIR, 'exercises' ),
@@ -24,53 +25,41 @@ var utils = require('./utils'),
 
     ANGLER_URL = 'http://localhost/hooks';
 
-function abortAbort( msg ) {
-    throw Error( msg );
-}
-
-function createNewRepo( repoDir, done ) {
-    utils.cp( REPO_CONTENTS, repoDir, function( err ) {
-        if ( err ) { done( err ); }
-
-        utils.git( __dirname, 'init', [ '--template=' + REPO_TMP, repoDir ], function( err ) {
-            if ( err ) { return done( err ); }
-
-            utils.git( repoDir, 'config', [ 'angler.url', ANGLER_URL ], function( err ) {
-                if ( err ) { return done( err ); }
-
-                done();
-            });
-        });
+function createNewRepo( repoDir ) {
+    return utils.cp( REPO_CONTENTS, repoDir )
+    .then( function() {
+        return utils.git( __dirname, 'init', [ '--template=' + REPO_TMP, repoDir ] );
+    })
+    .then( function() {
+        return utils.git( repoDir, 'config', [ 'angler.url', ANGLER_URL ] );
+    })
+    .then( function() {
+        return utils.git( repoDir, 'config', [ 'receive.denyCurrentBranch', 'false' ] );
     });
 }
 
-function createExerciseDir( currentExercise, conf, err ) {
-    if ( err ) { abortAbort( err ); }
-
+function createExerciseDir( currentExercise ) {
     // copy the exercise resources into the output dir
     var resourcesDir = path.join( EXERCISES_DIR, currentExercise, RESOURCES_DIR_NAME ),
         outputDir = path.join( GEN_DIR, currentExercise ),
-        repoPath = path.join( outputDir, REPO_DIR_NAME );
+        repoPath = path.join( outputDir, REPO_DIR_NAME ),
 
-    fs.stat( resourcesDir, function( err ) {
-        if ( err ) { return; } // no resource dir
-        utils.cp( resourcesDir, outputDir, function( err ) {
-            if ( err ) { abortAbort( err ); }
-        });
-    });
+        pending = [
+            q.nfcall( fs.stat, resourcesDir )
+            .then( function() {
+                return utils.cp( resourcesDir, outputDir );
+            })
+            .catch( function() { /* do nothing */  }),
+            createNewRepo( repoPath )
+        ];
 
-    // create the starting repo
-    createNewRepo( repoPath, function( err ) {
-        if ( err ) { abortAbort( err ); }
-    });
+    return q.all( pending );
 }
 
-utils.getExercises( function( err, exerciseConfs ) {
-    if ( err ) { abortAbort( err ); }
-
-    fs.mkdir( GEN_DIR, function( err ) {
-        if ( err ) { abortAbort( err ); }
-
+utils.getExercises()
+.done( function( exerciseConfs ) {
+    return q.nfcall( fs.mkdir, GEN_DIR )
+    .done( function() {
         var machines = [],
             viewers = [],
             repos = [],
@@ -85,7 +74,10 @@ utils.getExercises( function( err, exerciseConfs ) {
 
             // make the output directory
             outputDir = path.join( GEN_DIR, exercise );
-            fs.mkdir( outputDir, createExerciseDir.bind( null, exercise, exerciseConf ) );
+            q.nfcall( fs.mkdir, outputDir )
+            .done( function() {
+                return createExerciseDir( exercise, exerciseConf );
+            });
 
             function mkConfSubmodule( confAst ) {
                 var submodule = ast.createSubmodule( combinedScopeExprs, confAst );

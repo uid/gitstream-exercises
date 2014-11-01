@@ -1,6 +1,6 @@
 'use strict';
 
-var MULTIPLY_SRC = 'src/numerics/Multiply.java',
+var MULTIPLY = 'src/numerics/Multiply.java',
     MULTIPLY_CONFLICT = 'Multiply_recursive.java';
 
 module.exports = {
@@ -13,7 +13,7 @@ module.exports = {
 
         editFile: {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
-                this.simulateCollaboration( MULTIPLY_CONFLICT, MULTIPLY_SRC, 'Implemented Karatsuba', function() {
+                this.simulateCollaboration( MULTIPLY_CONFLICT, MULTIPLY, 'Implemented Karatsuba', function() {
                     gitDone();
                     stepDone('pushCommit');
                 });
@@ -30,7 +30,7 @@ module.exports = {
 
         mergeFile: {
             onReceive: function( repo, action, info, done ) {
-                this.fileContains( MULTIPLY_SRC, /(<<<<<<<|>>>>>>>|=======)/g, function( err, containsConflict ) {
+                this.fileContains( MULTIPLY, /(<{7}|>{7}|={7})/g, function( err, containsConflict ) {
                     if ( !containsConflict ) {
                         done('done');
                     } else {
@@ -41,10 +41,6 @@ module.exports = {
         },
 
         done: null
-    },
-
-    view: {
-        initTime: Infinity
     },
 
     viewer: {
