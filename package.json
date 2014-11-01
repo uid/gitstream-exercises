@@ -4,6 +4,7 @@
   "description": "Exercises for use with GitStream, the interactive Git tutor",
   "author": "Nick Hynes",
   "license": "MIT",
+  "main": "index.js",
   "repository": "https://github.com/nhynes/gitstream-exercises.git",
   "scripts": {
     "install": "./createx.js"
