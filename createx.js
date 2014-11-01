@@ -26,15 +26,20 @@ var utils = require('./utils'),
     ANGLER_URL = 'http://localhost/hooks';
 
 function createNewRepo( repoDir ) {
+    var git = utils.git.bind( null, repoDir );
+
     return utils.cp( REPO_CONTENTS, repoDir )
     .then( function() {
         return utils.git( __dirname, 'init', [ '--template=' + REPO_TMP, repoDir ] );
     })
     .then( function() {
-        return utils.git( repoDir, 'config', [ 'angler.url', ANGLER_URL ] );
+        return git( 'config', [ 'angler.url', ANGLER_URL ] );
     })
     .then( function() {
-        return utils.git( repoDir, 'config', [ 'receive.denyCurrentBranch', 'false' ] );
+        return git( 'config', [ 'receive.denyCurrentBranch', 'false' ] );
+    })
+    .then( function() {
+        return git( 'add', ':/' );
     });
 }
 
