@@ -8,7 +8,7 @@ cp "$gitroot"/.gitstream/hooks/* "$gitroot"/.git/hooks/
 
 curl -H "X-GitStream-Repo: $repo" "$baseUrl/go"
 
-git pull > /dev/null 2>&1
+git fetch origin > /dev/null 2>&1
 git checkout origin/master > /dev/null 2>&1
 git branch -f master > /dev/null 2>&1
 git checkout master > /dev/null 2>&1

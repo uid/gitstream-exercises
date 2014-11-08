@@ -77,7 +77,7 @@ module.exports = {
     repo: {
         commits: [
             {
-                message: 'Initial commit',
+                msg: 'Initial commit',
                 author: 'Nick Hynes <nhynes@mit.edu>', // must be in User <email> format
                 files: [ '.gitignore', '.classpath', '.project', 'src' ]
             }
