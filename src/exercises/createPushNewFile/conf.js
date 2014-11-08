@@ -1,7 +1,7 @@
 'use strict';
 
 var FILE_EXPECTED = 'hello.txt',
-    MSG_EXPECTED = 'hello world';
+    MSG_EXPECTED = 'hello git';
 
 module.exports = {
     // conf that applies to both client and server
@@ -18,26 +18,31 @@ module.exports = {
                 var commitMsg = this.parseCommitMsg( info.logMsg ),
                     userInp = ( commitMsg.length > 1 ? '\n' : '' ) + commitMsg.join('\n');
                 if ( commitMsg[0].toLowerCase() === MSG_EXPECTED )  {
-                    gitDone();
-                    stepDone('committedFile');
+                    this.shadowFileExists( FILE_EXPECTED, function( err, exists ) {
+                        if ( err ) {
+                            gitDone( -1, 'GitStream Error: ' + err.toString() );
+                            stepDone( null );
+                            return;
+                        }
+
+                        if ( exists ) {
+                            gitDone();
+                            stepDone('committedFile');
+                        } else {
+                            gitDone( 1, 'Gitstream: [COMMIT REJECTED] Commit should contain file: "' + FILE_EXPECTED + '"' );
+                            stepDone('createFile');
+                        }
+                    });
                 } else {
                     gitDone( 1, 'GitStream: [COMMIT REJECTED] Incorrect log message.' +
-                                ' Expected "' + MSG_EXPECTED + '" but was: "' + userInp + '"' );
+                                ' Expected commit message "' + MSG_EXPECTED + '" but was: "' + userInp + '"' );
                     stepDone( 'createFile', userInp );
                 }
             }
         },
 
         committedFile: {
-            onReceive: function( repo, action, info, done ) {
-                this.fileExists( FILE_EXPECTED, function( exists ) {
-                    if ( exists ) {
-                        done('done');
-                    } else {
-                        done('createFile');
-                    }
-                });
-            }
+            onReceive: 'done'
         },
 
         done: null // halt state
@@ -58,12 +63,11 @@ module.exports = {
             createFile: { // previous state
                 createFile: function( stepOutput, cb ) { // newly stepped state
                     var wrongMsg = stepOutput.prev; // prev is output from leaving prev state
-                    cb('Expected "' + MSG_EXPECTED + '" but was "' + wrongMsg + '"');
-                }
-            },
-            committedFile: {
-                createFile: function( stepOutput, cb ) {
-                    cb('The file name should have been "' + FILE_EXPECTED + '"');
+                    if ( wrongMsg ) {
+                        cb('Expected commit message "' + MSG_EXPECTED + '" but was "' + wrongMsg + '"');
+                    } else {
+                        cb('The file name should have been "' + FILE_EXPECTED + '"');
+                    }
                 }
             }
         }

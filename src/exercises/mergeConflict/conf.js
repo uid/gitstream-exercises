@@ -15,10 +15,10 @@ module.exports = {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
                 var conflict = {
                     msg: 'Implemented Karatsuba',
-                    files: [{
+                    files: [ {
                         src: MULTIPLY_CONFLICT,
                         dest: MULTIPLY
-                    }]
+                    } ]
                 };
                 this.addCommit( conflict, function( err ) {
                     gitDone( Number(!!err), err );
