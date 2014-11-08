@@ -37,6 +37,11 @@ module.exports = {
 
         mergeFile: {
             onReceive: function( repo, action, info, done ) {
+                var pushingToMaster = info.reduce( function( master, update ) {
+                    return master || update.name === 'refs/heads/master';
+                }, false );
+                if ( !pushingToMaster ) { return done(); }
+
                 this.fileContains( MULTIPLY, /(<{7}|>{7}|={7})/g, function( err, containsConflict ) {
                     if ( !containsConflict ) {
                         done('done');
