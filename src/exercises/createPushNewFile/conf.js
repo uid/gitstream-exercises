@@ -6,7 +6,7 @@ var FILE_EXPECTED = 'hello.txt',
 module.exports = {
     // conf that applies to both client and server
     global: {
-        timeLimit: 45 // seconds
+        timeLimit: 180 // seconds
     },
 
     // definition for server state machine
@@ -15,29 +15,28 @@ module.exports = {
 
         createFile: {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
-                var commitMsg = this.parseCommitMsg( info.logMsg ),
-                    userInp = ( commitMsg.length > 1 ? '\n' : '' ) + commitMsg.join('\n');
-                if ( commitMsg[0].toLowerCase() === MSG_EXPECTED )  {
-                    this.shadowFileExists( FILE_EXPECTED, function( err, exists ) {
-                        if ( err ) {
-                            gitDone( -1, 'GitStream Error: ' + err.toString() );
-                            stepDone( null );
-                            return;
-                        }
+                this.shadowFileExists( FILE_EXPECTED, function( err, exists ) {
+                    var commitMsg = this.parseCommitMsg( info.logMsg ),
+                        userInp = ( commitMsg.length > 1 ? '\n' : '' ) + commitMsg.join('\n');
 
-                        if ( exists ) {
+                    if ( err ) {
+                        gitDone( -1, '\x1b[41;1m\x1b[37;1mGitStream Error: ' + err.toString() );
+                        return stepDone(null);
+                    }
+
+                    if ( exists ) {
+                        if ( commitMsg[0].toLowerCase() === MSG_EXPECTED )  {
                             gitDone();
                             stepDone('committedFile');
                         } else {
-                            gitDone( 1, 'Gitstream: [COMMIT REJECTED] Commit should contain file: "' + FILE_EXPECTED + '"' );
-                            stepDone('createFile');
+                            gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Incorrect log message. Expected commit message "' + MSG_EXPECTED + '" but was: "' + userInp + '"' );
+                            stepDone( 'createFile', userInp );
                         }
-                    });
-                } else {
-                    gitDone( 1, 'GitStream: [COMMIT REJECTED] Incorrect log message.' +
-                                ' Expected commit message "' + MSG_EXPECTED + '" but was: "' + userInp + '"' );
-                    stepDone( 'createFile', userInp );
-                }
+                    } else {
+                        gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Commit should contain file: "' + FILE_EXPECTED + '"' );
+                        stepDone('createFile');
+                    }
+                }.bind( this ) );
             }
         },
 
