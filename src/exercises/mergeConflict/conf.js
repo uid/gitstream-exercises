@@ -1,11 +1,11 @@
 'use strict';
 
-var MULTIPLY = 'src/numerics/Multiply.java',
-    MULTIPLY_CONFLICT = 'Multiply_recursive.java';
+var TIMESADD = 'times_add.py',
+    TIMESADD_CONFLICT = 'times_add_other.py';
 
 module.exports = {
     global: {
-        timeLimit: Infinity
+        timeLimit: 180
     },
 
     machine: {
@@ -14,10 +14,10 @@ module.exports = {
         editFile: {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
                 var conflict = {
-                    msg: 'Implemented Karatsuba',
+                    msg: 'Implemented times_add',
                     files: [ {
-                        src: MULTIPLY_CONFLICT,
-                        dest: MULTIPLY
+                        src: TIMESADD_CONFLICT,
+                        dest: TIMESADD
                     } ]
                 };
                 this.addCommit( conflict, function( err ) {
@@ -36,19 +36,22 @@ module.exports = {
         },
 
         mergeFile: {
+            handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
+                this.shadowFileContains( TIMESADD, /(<{7}|>{7}|={7})/g, function( err, containsConflict ) {
+                    if ( !containsConflict ) {
+                        gitDone();
+                        stepDone( 'mergeFile', { ok: true } );
+                    } else {
+                        gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] You forgot to remove the conflict markers' );
+                        stepDone( 'mergeFile', { ok: false } );
+                    }
+                });
+            },
             onReceive: function( repo, action, info, done ) {
                 var pushingToMaster = info.reduce( function( master, update ) {
                     return master || update.name === 'refs/heads/master';
                 }, false );
-                if ( !pushingToMaster ) { return done(); }
-
-                this.fileContains( MULTIPLY, /(<{7}|>{7}|={7})/g, function( err, containsConflict ) {
-                    if ( !containsConflict ) {
-                        done('done');
-                    } else {
-                        done('mergeFile');
-                    }
-                });
+                return pushingToMaster ? done('done') : done();
             }
         },
 
@@ -59,16 +62,17 @@ module.exports = {
         title: 'Merging a collaborator\'s work',
 
         steps: {
-            editFile: 'Implement the base case of <code>Multiply</code> in <code>Multiply.java</code>. Make sure the "small" tests pass and then commit your work.',
+            editFile: 'Implement <code>times_add</code> in <code>times_add.py</code>. Make sure the tests pass and then commit your work.',
             pushCommit: 'Push your commit',
             pullRepo: 'There was a merge conflict! Pull the repo to get the latest changes.',
-            mergeFile: 'Merge in your changes. When the tests pass, add, commit, and push!'
+            mergeFile: 'Merge the changes, favoring your implementation. When the tests pass, add, commit, and push!'
         },
 
         feedback: {
             mergeFile: {
                 mergeFile: function( stepOutput, cb ) {
-                    cb('You forgot to remove the conflict markers (&lt;&lt;&lt;&lt;&lt;&lt;&lt;, &gt;&gt;&gt;&gt;&gt;&gt;&gt;, and =======)');
+                    var FEEDBACK = 'You forgot to remove the conflict markers (&lt;&lt;&lt;&lt;&lt;&lt;&lt;, =======, and &gt;&gt;&gt;&gt;&gt;&gt;&gt;)';
+                    cb( stepOutput.prev.ok ? '' : FEEDBACK );
                 }
             }
         }
@@ -79,7 +83,7 @@ module.exports = {
             {
                 msg: 'Initial commit',
                 author: 'Nick Hynes <nhynes@mit.edu>', // must be in User <email> format
-                files: [ '.gitignore', '.classpath', '.project', 'src' ]
+                files: [ TIMESADD ]
             }
         ]
     }
