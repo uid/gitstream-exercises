@@ -43,10 +43,11 @@ function createNewRepo( repoDir ) {
     });
 }
 
-function createExerciseDir( currentExercise ) {
+function createExerciseDir( exercise ) {
     // copy the exercise resources into the output dir
-    var resourcesDir = path.join( EXERCISES_DIR, currentExercise, RESOURCES_DIR_NAME ),
-        outputDir = path.join( GEN_DIR, currentExercise ),
+    var resourcesDir = path.join( EXERCISES_DIR, exercise, RESOURCES_DIR_NAME ),
+        exerciseName = exercise.substring( exercise.indexOf('-') + 1 ),
+        outputDir = path.join( GEN_DIR, exerciseName ),
         repoPath = path.join( outputDir, REPO_DIR_NAME ),
 
         pending = [
@@ -90,13 +91,14 @@ replaceNPMIgnores( SRC_DIR )
 
         // split the configs
         Object.keys( exerciseConfs ).forEach( function( exercise ) {
-            var exerciseConf = require( exerciseConfs[ exercise ].path ),
+            var exerciseName = exercise.substring( exercise.indexOf('-') + 1 ),
+                exerciseConf = require( exerciseConfs[ exercise ].path ),
                 confAst = esprima.parse( exerciseConfs[ exercise ].data ),
                 combinedScopeExprs = ast.getCombinedScopeExprs( confAst ),
                 confTrees = ast.getConfSubtrees( confAst );
 
             // make the output directory
-            outputDir = path.join( GEN_DIR, exercise );
+            outputDir = path.join( GEN_DIR, exerciseName );
             q.nfcall( fs.mkdir, outputDir )
             .done( function() {
                 return createExerciseDir( exercise, exerciseConf );
@@ -104,7 +106,7 @@ replaceNPMIgnores( SRC_DIR )
 
             function mkConfSubmodule( confAst ) {
                 var submodule = ast.createSubmodule( combinedScopeExprs, confAst );
-                return ast.createProperty( exercise, submodule );
+                return ast.createProperty( exerciseName, submodule );
             }
 
             machines.push( mkConfSubmodule( confTrees.machine ) );
