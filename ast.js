@@ -1,6 +1,14 @@
 'use strict';
 
 module.exports = {
+    createLiteral: function( value ) {
+        return { type: 'Literal', value: value };
+    },
+
+    createArray: function( elements ) {
+        return { type: 'ArrayExpression', elements: elements };
+    },
+
     createReturn: function( argument ) {
         return { type: 'ReturnStatement', argument: argument };
     },

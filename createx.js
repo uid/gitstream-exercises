@@ -84,13 +84,17 @@ replaceNPMIgnores( SRC_DIR )
 .done( function( exerciseConfs ) {
     return q.nfcall( fs.mkdir, GEN_DIR )
     .done( function() {
-        var machines = [],
-            viewers = [],
+        var exercises = Object.keys( exerciseConfs ),
+            order = ast.createArray( exercises.sort().map( function( exercise ) {
+                return ast.createLiteral( exercise.substring( exercise.indexOf('-') + 1 ) );
+            }) ),
+            machines = [],
+            viewers = [ ast.createProperty( '_order', order ) ],
             repos = [],
             outputDir;
 
         // split the configs
-        Object.keys( exerciseConfs ).forEach( function( exercise ) {
+        exercises.forEach( function( exercise ) {
             var exerciseName = exercise.substring( exercise.indexOf('-') + 1 ),
                 exerciseConf = require( exerciseConfs[ exercise ].path ),
                 confAst = esprima.parse( exerciseConfs[ exercise ].data ),
