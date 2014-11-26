@@ -20,7 +20,7 @@ module.exports = {
                         userInp = ( commitMsg.length > 1 ? '\n' : '' ) + commitMsg.join('\n');
 
                     if ( err ) {
-                        gitDone( -1, '\x1b[41;1m\x1b[37;1mGitStream Error: ' + err.toString() );
+                        gitDone( -1, '\x1b[41;1m\x1b[37;1mGitStream Error: ' + err.toString() + '\x1b[0m');
                         return stepDone(null);
                     }
 
@@ -29,11 +29,11 @@ module.exports = {
                             gitDone();
                             stepDone('committedFile');
                         } else {
-                            gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Incorrect log message. Expected commit message "' + MSG_EXPECTED + '" but was: "' + userInp + '"' );
+                            gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Incorrect log message. Expected commit message "' + MSG_EXPECTED + '" but was: "' + userInp + '"\x1b[0m' );
                             stepDone( 'createFile', userInp );
                         }
                     } else {
-                        gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Commit should contain file: "' + FILE_EXPECTED + '"' );
+                        gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Commit should contain file: "' + FILE_EXPECTED + '"\x1b[0m' );
                         stepDone('createFile');
                     }
                 }.bind( this ) );

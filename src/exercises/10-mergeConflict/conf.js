@@ -42,7 +42,7 @@ module.exports = {
                         gitDone();
                         stepDone( 'mergeFile', { ok: true } );
                     } else {
-                        gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] You forgot to remove the conflict markers' );
+                        gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] You forgot to remove the conflict markers\x1b[0m' );
                         stepDone( 'mergeFile', { ok: false } );
                     }
                 });
