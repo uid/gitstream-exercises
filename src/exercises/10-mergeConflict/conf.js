@@ -64,8 +64,8 @@ module.exports = {
         steps: {
             editFile: 'Implement <code>times_add</code> in <code>times_add.py</code>. Make sure the tests pass and then commit your work.',
             pushCommit: 'Push your commit',
-            pullRepo: 'There was a merge conflict! Pull the repo to get the latest changes.',
-            mergeFile: 'Merge the changes, favoring your implementation. When the tests pass, add, commit, and push!'
+            pullRepo: 'There was a merge conflict! <a href="http://www.git-scm.com/docs/git-pull" target="_blank">Pull</a> the repo to get the latest changes.',
+            mergeFile: 'Edit the file and merge the changes, favoring your implementation. When the tests pass, add, commit, and push!'
         },
 
         feedback: {

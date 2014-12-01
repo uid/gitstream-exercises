@@ -65,8 +65,8 @@ module.exports = {
         title: 'Navigating history',
 
         steps: {
-            checkoutCommit: '<code>checkout</code> the commit with log message "' + CO_LOG_MSG + '"',
-            ackTheDiff: 'Delete from <code>words_list.txt</code> the word that was added in that commit and then commit your change'
+            checkoutCommit: '<a href="http://www.git-scm.com/docs/git-checkout" target="_blank"><code>checkout</code></a> the commit with log message "' + CO_LOG_MSG + '"',
+            ackTheDiff: 'Delete from <code>words_list.txt</code> the word that was added in that commit and then commit your change (hint: try using <code>git <a href="http://git-scm.com/docs/git-show" target="_blank">show</a></code>)'
         },
 
         feedback: {
