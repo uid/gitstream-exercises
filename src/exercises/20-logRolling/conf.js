@@ -1,41 +1,34 @@
 'use strict';
 
 var WORDS_LIST = 'words_list.txt',
-    CO_LOG_MSG = 'Hey, check me out!',
-
-    theCommit; // will be accessible separately to machine, viewer, and repo
+    UNDO_LOG_MSG = 'Hey, over here!',
+    WORDBANK = 'wordbank.dat';
 
 module.exports = {
     global: {
-        timeLimit: 180
+        timeLimit: Infinity // 180
     },
 
     machine: {
-        startState: 'checkoutCommit',
+        startState: 'undoChange',
 
-        checkoutCommit: {
-            onCheckout: function( repo, action, info, done ) {
-                this.getCommitMsg( info.newHead, function( err, msg ) {
-                    if ( err ) { done('error'); }
-
-                    if ( msg === CO_LOG_MSG ) {
-                        theCommit = info.newHead;
-                        done('ackTheDiff');
-                    } else {
-                        done('checkoutCommit');
-                    }
-                });
-            }
-        },
-
-        ackTheDiff: {
+        undoChange: {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
-                var theWord;
+                var theAddedWord,
+                    undoCommit;
 
-                this.diff( theCommit )
+                this.git( 'log', [ '--pretty="%s--%H"' ] )
+                .then( function( commits ) {
+                    undoCommit = commits.split('\n').reduce( function( theCommit, commit ) {
+                        var trimmedCommitInfo = commit.substring(1, commit.length - 1),
+                            subjHash = trimmedCommitInfo.split('--');
+                        return subjHash[0] === UNDO_LOG_MSG ? subjHash[1] : theCommit;
+                    }, null );
+                    return this.diff( undoCommit );
+                }.bind( this ) )
                 .then( function( diff ) {
-                    theWord = /\+([a-z]+)\n/.exec( diff )[1];
-                    return this.diffShadow( theCommit );
+                    theAddedWord = /\+([a-z]+)\n/.exec( diff )[1];
+                    return this.diffShadow();
                 }.bind( this ) )
                 .done( function( diff ) {
                     var diffRe = /^[+-][a-z]+$/,
@@ -44,18 +37,24 @@ module.exports = {
                             return match ? c.concat( match[0] ) : c;
                         }, [] );
 
-                    if ( changes.length === 1 && changes[0] === '-' + theWord ) {
+                    if ( changes.length === 1 && changes[0] === '-' + theAddedWord ) {
                         gitDone();
-                        stepDone('done');
+                        stepDone();
                     } else {
                         gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Too many changes made to ' + WORDS_LIST + '\x1b[0m' );
-                        stepDone('ackTheDiff');
+                        stepDone('undoChange');
                     }
                 }, function( err ) {
                     gitDone( -1, '\x1b[41;1m\x1b[37;1mGitStream Error: ' + err.toString() + '\x1b[0m');
                     stepDone(null);
                 });
-            }
+            },
+
+            onCommit: 'pushUndo'
+        },
+
+        pushUndo: {
+            onReceive: 'done'
         },
 
         done: null
@@ -65,20 +64,14 @@ module.exports = {
         title: 'Navigating history',
 
         steps: {
-            checkoutCommit: '<a href="http://www.git-scm.com/docs/git-checkout" target="_blank"><code>checkout</code></a> the commit with log message "' + CO_LOG_MSG + '"',
-            ackTheDiff: 'Delete from <code>words_list.txt</code> the word that was added in that commit and then commit your change (hint: try using <code>git <a href="http://git-scm.com/docs/git-show" target="_blank">show</a></code>)'
+            undoChange: 'Examine the <a href="http://www.git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History" target="_blank">commit log</a> and find the commit with the message "' + UNDO_LOG_MSG + '".&nbsp;  Determine which word was added in that commit and remove it from <code>' + WORDS_LIST + '</code>. (hint:  try using <code>git <a href="http://git-scm.com/docs/git-show" tar  get="_blank">show</a></code>)',
+            pushUndo: 'Push your changes.'
         },
 
         feedback: {
-            checkoutCommit: {
-                checkoutCommit: function( stepOutput, done ) {
-                    done('Nope, that wasn\'t it');
-                }
-            },
-
-            ackTheDiff: {
-                ackTheDiff: function( _, done ) {
-                    done('You should <em>only</em> remove the word that was addded in the commit. Run <code>git checkout ' + WORDS_LIST + '</code> and try again!');
+            undoChange: {
+                undoChange: function( _, done ) {
+                    done('You should <em>only</em> remove the word that was addded in the marked commit. Run <code>git checkout ' + WORDS_LIST + '</code> and try again!');
                 }
             }
         }
@@ -92,12 +85,12 @@ module.exports = {
 
                 minWords = NUM_BASE_WORDS + MAX_COMMITS,
                 path = require('path'), // repo and machine execute on the server, so this works
-                wordbank = require( path.join( resourcesPath, 'wordbank.dat' ) ), // require caches
+                wordbank = require( path.join( resourcesPath, WORDBANK ) ), // require caches
                 numWords = Math.random() * ( MAX_COMMITS - MIN_COMMITS ) + minWords,
                 words = [],
                 additionalWords = [],
                 commitSpecs = [],
-                checkout = Math.floor( Math.random() * ( numWords - NUM_BASE_WORDS ) );
+                commitToUndo = Math.floor( Math.random() * ( numWords - NUM_BASE_WORDS ) );
 
             for (; numWords > 0; numWords--) {
                 ( numWords < NUM_BASE_WORDS - 1 ? words : additionalWords )
@@ -114,7 +107,7 @@ module.exports = {
             addCommitSpec('Initial commit');
 
             additionalWords.map( function( word, i ) {
-                var msg = i === checkout ? CO_LOG_MSG : 'Added a word';
+                var msg = i === commitToUndo ? UNDO_LOG_MSG : 'Added a word';
                 words.splice( Math.floor( Math.random() * words.length ), 0, word );
                 addCommitSpec( msg );
             });

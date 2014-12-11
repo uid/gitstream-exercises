@@ -6,7 +6,7 @@ var FILE_EXPECTED = 'hello.txt',
 module.exports = {
     // conf that applies to both client and server
     global: {
-        timeLimit: 180 // seconds
+        timeLimit: Infinity // seconds
     },
 
     // definition for server state machine
