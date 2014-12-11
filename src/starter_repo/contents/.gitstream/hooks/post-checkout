@@ -2,6 +2,9 @@
 
 repo="$(git config remote.origin.url)"
 anglerUrl="$(git config angler.url)"
+toplevel="$(git rev-parse --show-toplevel)"
+
+"$toplevel"/.gitstream/shadow.sh
 
 res="$(curl -s --data "$1 $2 $3" "$anglerUrl?hook=checkout&repo=$repo")"
 
