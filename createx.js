@@ -26,21 +26,13 @@ var utils = require('./utils'),
     ANGLER_URL = 'http://localhost/hooks';
 
 function createNewRepo( repoDir ) {
-    var git = utils.git.bind( null, repoDir );
+    var git = utils.git.bind.bind( utils.git, null, repoDir );
 
     return utils.cp( REPO_CONTENTS, repoDir )
-    .then( function() {
-        return utils.git( __dirname, 'init', [ '--template=' + REPO_TMP, repoDir ] );
-    })
-    .then( function() {
-        return git( 'config', [ 'angler.url', ANGLER_URL ] );
-    })
-    .then( function() {
-        return git( 'config', [ 'receive.denyCurrentBranch', 'false' ] );
-    })
-    .then( function() {
-        return git( 'add', ':/' );
-    });
+    .then( utils.git.bind( null, __dirname, 'init', [ '--template=' + REPO_TMP, repoDir ] ) )
+    .then( git( 'config', [ 'angler.url', ANGLER_URL ] ) )
+    .then( git( 'config', [ 'receive.denyCurrentBranch', 'false' ] ) )
+    .then( git( 'add', ':/' ) );
 }
 
 function createExerciseDir( exercise ) {
@@ -52,10 +44,7 @@ function createExerciseDir( exercise ) {
 
         pending = [
             q.nfcall( fs.stat, resourcesDir )
-            .then( function() {
-                return utils.cp( resourcesDir, outputDir );
-            })
-            .catch( function() { /* do nothing */  }),
+            .then( utils.cp.bind( null, resourcesDir, outputDir ), function() { /* noop */ } ),
             createNewRepo( repoPath )
         ];
 
@@ -86,8 +75,10 @@ replaceNPMIgnores( SRC_DIR )
     .done( function() {
         var exercises = Object.keys( exerciseConfs ),
             order = ast.createArray( exercises.sort().map( function( exercise ) {
-                return ast.createLiteral( exercise.substring( exercise.indexOf('-') + 1 ) );
-            }) ),
+                if ( /^[0-9]+-/.test( exercise ) ) { // hide unordered exercises
+                    return ast.createLiteral( exercise.substring( exercise.indexOf('-') + 1 ) );
+                }
+            }).filter( function( name ) { return !!name; } ) ),
             machines = [],
             viewers = [ ast.createProperty( '_order', order ) ],
             repos = [],
@@ -104,9 +95,7 @@ replaceNPMIgnores( SRC_DIR )
             // make the output directory
             outputDir = path.join( GEN_DIR, exerciseName );
             q.nfcall( fs.mkdir, outputDir )
-            .done( function() {
-                return createExerciseDir( exercise, exerciseConf );
-            });
+            .done( createExerciseDir.bind( null, exercise, exerciseConf ) );
 
             function mkConfSubmodule( confAst ) {
                 var submodule = ast.createSubmodule( combinedScopeExprs, confAst );
