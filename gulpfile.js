@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 var gulp = require('gulp'),
     rimraf = require('rimraf'),
@@ -13,44 +13,44 @@ var gulp = require('gulp'),
     path = {
         js: [ '**/*.js', '!node_modules/**/*', '!viewers.js', '!machines.js', '!repos.js' ],
         generated: [ 'viewers.js', 'machines.js', 'repos.js', 'exercises' ]
-    };
+    }
 
 if ( !production ) {
-    jscs = require('gulp-jscs');
-    jshint = require('gulp-jshint');
-    plumber = require('gulp-plumber');
-    stylish = require('jshint-stylish');
+    jscs = require('gulp-jscs')
+    jshint = require('gulp-jshint')
+    plumber = require('gulp-plumber')
+    stylish = require('jshint-stylish')
 }
 
-gulp.task( 'default', [ 'checkstyle', 'clean', 'build' ] );
+gulp.task( 'default', [ 'checkstyle', 'clean', 'build' ] )
 
 gulp.task( 'checkstyle', function() {
-    if ( production ) { return; }
+    if ( production ) { return }
 
     gulp.src( path.js )
         .pipe( plumber() )
         .pipe( jshint() )
         .pipe( jshint.reporter( stylish ) )
-        .pipe( jscs() );
-});
+        .pipe( jscs() )
+})
 
 gulp.task( 'clean', function( cb ) {
     var rmDeferreds = path.generated.map( function() {
-            return q.defer();
+            return q.defer()
         }),
         rmPromises = rmDeferreds.map( function( deferred ) {
-            return deferred.promise;
-        });
+            return deferred.promise
+        })
 
     q.all( rmPromises ).done( function() {
-        cb();
-    });
+        cb()
+    })
 
     path.generated.map( function( file, i ) {
-        rimraf( file, rmDeferreds[i].resolve );
-    });
-});
+        rimraf( file, rmDeferreds[i].resolve )
+    })
+})
 
 gulp.task( 'build', [ 'clean' ], function() {
-    require('./createx');
-});
+    require('./createx')
+})

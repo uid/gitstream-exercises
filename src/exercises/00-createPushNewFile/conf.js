@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
 var FILE_EXPECTED = 'hello.txt',
-    MSG_EXPECTED = 'hello git';
+    MSG_EXPECTED = 'hello git'
 
 module.exports = {
     // conf that applies to both client and server
@@ -17,26 +17,26 @@ module.exports = {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
                 this.shadowFileExists( FILE_EXPECTED, function( err, exists ) {
                     var commitMsg = this.parseCommitMsg( info.logMsg ),
-                        userInp = ( commitMsg.length > 1 ? '\n' : '' ) + commitMsg.join('\n');
+                        userInp = ( commitMsg.length > 1 ? '\n' : '' ) + commitMsg.join('\n')
 
                     if ( err ) {
-                        gitDone( -1, '\x1b[41;1m\x1b[37;1mGitStream Error: ' + err.toString() + '\x1b[0m');
-                        return stepDone(null);
+                        gitDone( -1, '\x1b[411m\x1b[371mGitStream Error: ' + err.toString() + '\x1b[0m')
+                        return stepDone(null)
                     }
 
                     if ( exists ) {
                         if ( commitMsg[0].toLowerCase() === MSG_EXPECTED )  {
-                            gitDone();
-                            stepDone('committedFile');
+                            gitDone()
+                            stepDone('committedFile')
                         } else {
-                            gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Incorrect log message. Expected commit message "' + MSG_EXPECTED + '" but was: "' + userInp + '"\x1b[0m' );
-                            stepDone( 'createFile', userInp );
+                            gitDone( 1, '\x1b[311mGitStream: [COMMIT REJECTED] Incorrect log message. Expected commit message "' + MSG_EXPECTED + '" but was: "' + userInp + '"\x1b[0m' )
+                            stepDone( 'createFile', userInp )
                         }
                     } else {
-                        gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Commit should contain file: "' + FILE_EXPECTED + '"\x1b[0m' );
-                        stepDone('createFile');
+                        gitDone( 1, '\x1b[311mGitStream: [COMMIT REJECTED] Commit should contain file: "' + FILE_EXPECTED + '"\x1b[0m' )
+                        stepDone('createFile')
                     }
-                }.bind( this ) );
+                }.bind( this ) )
             }
         },
 
@@ -61,14 +61,14 @@ module.exports = {
         feedback: {
             createFile: { // previous state
                 createFile: function( stepOutput, cb ) { // newly stepped state
-                    var wrongMsg = stepOutput.prev; // prev is output from leaving prev state
+                    var wrongMsg = stepOutput.prev // prev is output from leaving prev state
                     if ( wrongMsg ) {
-                        cb('Expected commit message "' + MSG_EXPECTED + '" but was "' + wrongMsg + '"');
+                        cb('Expected commit message "' + MSG_EXPECTED + '" but was "' + wrongMsg + '"')
                     } else {
-                        cb('The file name should have been "' + FILE_EXPECTED + '"');
+                        cb('The file name should have been "' + FILE_EXPECTED + '"')
                     }
                 }
             }
         }
     }
-};
+}

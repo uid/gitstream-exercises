@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
 var utils = require('./utils'),
     fs = require('fs'),
@@ -23,16 +23,16 @@ var utils = require('./utils'),
     VIEWERS_FILE = path.join( __dirname, 'viewers.js' ),
     REPOS_FILE = path.join( __dirname, 'repos.js' ),
 
-    ANGLER_URL = 'http://localhost/hooks';
+    ANGLER_URL = 'http://localhost/hooks'
 
 function createNewRepo( repoDir ) {
-    var git = utils.git.bind.bind( utils.git, null, repoDir );
+    var git = utils.git.bind.bind( utils.git, null, repoDir )
 
     return utils.cp( REPO_CONTENTS, repoDir )
     .then( utils.git.bind( null, __dirname, 'init', [ '--template=' + REPO_TMP, repoDir ] ) )
     .then( git( 'config', [ 'angler.url', ANGLER_URL ] ) )
     .then( git( 'config', [ 'receive.denyCurrentBranch', 'false' ] ) )
-    .then( git( 'add', ':/' ) );
+    .then( git( 'add', ':/' ) )
 }
 
 function createExerciseDir( exercise ) {
@@ -46,9 +46,9 @@ function createExerciseDir( exercise ) {
             q.nfcall( fs.stat, resourcesDir )
             .then( utils.cp.bind( null, resourcesDir, outputDir ), function() { /* noop */ } ),
             createNewRepo( repoPath )
-        ];
+        ]
 
-    return q.all( pending );
+    return q.all( pending )
 }
 
 // npm replaces all .gitignores with .npmignores on install. fix this.
@@ -59,13 +59,13 @@ function replaceNPMIgnores( src ) {
             return q.nfcall( fs.readdir, src )
             .then( function( files ) {
                 return q.all( files.map( function( file ) {
-                    return replaceNPMIgnores( path.join( src, file ) );
-                }) );
-            });
+                    return replaceNPMIgnores( path.join( src, file ) )
+                }) )
+            })
         } else if ( path.basename( src ) === '.npmignore' ) {
-            return q.nfcall( fs.rename, src, path.join( path.dirname( src ), '.gitignore' ) );
+            return q.nfcall( fs.rename, src, path.join( path.dirname( src ), '.gitignore' ) )
         }
-    });
+    })
 }
 
 replaceNPMIgnores( SRC_DIR )
@@ -76,13 +76,13 @@ replaceNPMIgnores( SRC_DIR )
         var exercises = Object.keys( exerciseConfs ),
             order = ast.createArray( exercises.sort().map( function( exercise ) {
                 if ( /^[0-9]+-/.test( exercise ) ) { // hide unordered exercises
-                    return ast.createLiteral( exercise.substring( exercise.indexOf('-') + 1 ) );
+                    return ast.createLiteral( exercise.substring( exercise.indexOf('-') + 1 ) )
                 }
-            }).filter( function( name ) { return !!name; } ) ),
+            }).filter( function( name ) { return !!name } ) ),
             machines = [],
             viewers = [ ast.createProperty( '_order', order ) ],
             repos = [],
-            outputDir;
+            outputDir
 
         // split the configs
         exercises.forEach( function( exercise ) {
@@ -90,31 +90,31 @@ replaceNPMIgnores( SRC_DIR )
                 exerciseConf = require( exerciseConfs[ exercise ].path ),
                 confAst = esprima.parse( exerciseConfs[ exercise ].data ),
                 combinedScopeExprs = ast.getCombinedScopeExprs( confAst ),
-                confTrees = ast.getConfSubtrees( confAst );
+                confTrees = ast.getConfSubtrees( confAst )
 
             // make the output directory
-            outputDir = path.join( GEN_DIR, exerciseName );
+            outputDir = path.join( GEN_DIR, exerciseName )
             q.nfcall( fs.mkdir, outputDir )
-            .done( createExerciseDir.bind( null, exercise, exerciseConf ) );
+            .done( createExerciseDir.bind( null, exercise, exerciseConf ) )
 
             function mkConfSubmodule( confAst ) {
-                var submodule = ast.createSubmodule( combinedScopeExprs, confAst );
-                return ast.createProperty( exerciseName, submodule );
+                var submodule = ast.createSubmodule( combinedScopeExprs, confAst )
+                return ast.createProperty( exerciseName, submodule )
             }
 
-            machines.push( mkConfSubmodule( confTrees.machine ) );
-            viewers.push( mkConfSubmodule( confTrees.viewer ) );
-            repos.push( mkConfSubmodule( confTrees.repo || ast.createObject([]) ) );
-        });
+            machines.push( mkConfSubmodule( confTrees.machine ) )
+            viewers.push( mkConfSubmodule( confTrees.viewer ) )
+            repos.push( mkConfSubmodule( confTrees.repo || ast.createObject([]) ) )
+        })
 
         function writeMod( file, props ) {
-            var mod = ast.createModule( null, ast.createObject( props ) );
-            fs.writeFile( file, escodegen.generate( mod ) );
+            var mod = ast.createModule( null, ast.createObject( props ) )
+            fs.writeFile( file, escodegen.generate( mod ) )
         }
 
         // write out the split configs
-        writeMod( MACHINES_FILE, machines );
-        writeMod( VIEWERS_FILE, viewers );
-        writeMod( REPOS_FILE, repos );
-    });
-});
+        writeMod( MACHINES_FILE, machines )
+        writeMod( VIEWERS_FILE, viewers )
+        writeMod( REPOS_FILE, repos )
+    })
+})

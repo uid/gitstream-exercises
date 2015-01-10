@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
 var TIMESADD = 'times_add.py',
-    TIMESADD_CONFLICT = 'times_add_other.py';
+    TIMESADD_CONFLICT = 'times_add_other.py'
 
 module.exports = {
     global: {
@@ -19,11 +19,11 @@ module.exports = {
                         src: TIMESADD_CONFLICT,
                         dest: TIMESADD
                     } ]
-                };
+                }
                 this.addCommit( conflict, function( err ) {
-                    gitDone( Number(!!err), err );
-                    stepDone('pushCommit');
-                });
+                    gitDone( Number(!!err), err )
+                    stepDone('pushCommit')
+                })
             }
         },
         // possibly disable all pulls between these states to prevent pulling down the conflict
@@ -39,19 +39,19 @@ module.exports = {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
                 this.shadowFileContains( TIMESADD, /(<{7}|>{7}|={7})/g, function( err, containsConflict ) {
                     if ( !containsConflict ) {
-                        gitDone();
-                        stepDone( 'mergeFile', { ok: true } );
+                        gitDone()
+                        stepDone( 'mergeFile', { ok: true } )
                     } else {
-                        gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] You forgot to remove the conflict markers\x1b[0m' );
-                        stepDone( 'mergeFile', { ok: false } );
+                        gitDone( 1, '\x1b[311mGitStream: [COMMIT REJECTED] You forgot to remove the conflict markers\x1b[0m' )
+                        stepDone( 'mergeFile', { ok: false } )
                     }
-                });
+                })
             },
             onReceive: function( repo, action, info, done ) {
                 var pushingToMaster = info.reduce( function( master, update ) {
-                    return master || update.name === 'refs/heads/master';
-                }, false );
-                return pushingToMaster ? done('done') : done();
+                    return master || update.name === 'refs/heads/master'
+                }, false )
+                return pushingToMaster ? done('done') : done()
             }
         },
 
@@ -71,8 +71,8 @@ module.exports = {
         feedback: {
             mergeFile: {
                 mergeFile: function( stepOutput, cb ) {
-                    var FEEDBACK = 'You forgot to remove the conflict markers (&lt;&lt;&lt;&lt;&lt;&lt;&lt;, =======, and &gt;&gt;&gt;&gt;&gt;&gt;&gt;)';
-                    cb( stepOutput.prev.ok ? '' : FEEDBACK );
+                    var FEEDBACK = 'You forgot to remove the conflict markers (&lt&lt&lt&lt&lt&lt&lt, =======, and &gt&gt&gt&gt&gt&gt&gt)'
+                    cb( stepOutput.prev.ok ? '' : FEEDBACK )
                 }
             }
         }
@@ -87,4 +87,4 @@ module.exports = {
             }
         ]
     }
-};
+}
