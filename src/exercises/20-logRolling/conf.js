@@ -2,7 +2,22 @@
 
 var WORDS_LIST = 'words_list.txt',
     UNDO_LOG_MSG = 'Hey, over here!',
+    REVERT_LOG_MSG = 'Revert me!',
+    NORMAL_LOG_MSG = 'Added a word',
     WORDBANK = 'wordbank.dat';
+
+// in-place Fisher-Yates shuffle
+function shuffle( list ) {
+    var i,
+        rand,
+        tmp;
+    for ( i = list.length - 1; i > 0; i-- ) {
+        rand = Math.floor( Math.random() * i );
+        tmp = list[i];
+        list[i] = list[rand];
+        list[rand] = tmp;
+    }
+}
 
 module.exports = {
     global: {
@@ -41,7 +56,7 @@ module.exports = {
                         gitDone();
                         stepDone();
                     } else {
-                        gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Too many changes made to ' + WORDS_LIST + '\x1b[0m' );
+                        gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Incorrect changes made to ' + WORDS_LIST + '\x1b[0m' );
                         stepDone('undoChange');
                     }
                 }, function( err ) {
@@ -54,6 +69,110 @@ module.exports = {
         },
 
         pushUndo: {
+            onReceive: function( repo, action, info, done ) {
+                var MIN_COMMITS = 4,
+                    MAX_COMMITS = 8,
+                    NUM_BASE_WORDS = 10,
+
+                    minWords = NUM_BASE_WORDS + MAX_COMMITS,
+                    wordbank = require( this.resourceFilePath( WORDBANK ) ),
+                    numWords = Math.floor( Math.random() * ( MAX_COMMITS - MIN_COMMITS ) + minWords ),
+                    commitSpecs = [],
+                    words = [],
+                    wordsList = [],
+                    wordSlots = [],
+                    commitToRevert = Math.max( 1,
+                                      Math.floor( Math.random() * (numWords - NUM_BASE_WORDS) ) );
+
+                for (; numWords > 0; numWords--) {
+                    wordsList.push('');
+                    words.push( wordbank[ Math.floor( Math.random() * wordbank.length ) ] );
+                    wordSlots.push( numWords - 1 );
+                }
+                wordsList.pop();
+                shuffle( wordSlots );
+
+                function addCommitSpec( msg ) {
+                    commitSpecs.push({
+                        msg: msg,
+                        files: [ { src: WORDS_LIST, template: { words: wordsList.join('\n\n') } } ]
+                    });
+                }
+
+                words.forEach( function( word, i ) {
+                    wordsList[ wordSlots[i] ] = word;
+                    if ( i === NUM_BASE_WORDS ) {
+                        addCommitSpec('Added some more words.');
+                    } else if ( i > NUM_BASE_WORDS ) {
+                        addCommitSpec( i === NUM_BASE_WORDS + commitToRevert ?
+                                      REVERT_LOG_MSG : NORMAL_LOG_MSG );
+                    }
+                }.bind( this ) );
+
+                commitSpecs.reduce( function( chain, spec, i ) {
+                    if ( i === 0 ) {
+                        return this.addCommit( spec );
+                    } else {
+                        return chain.then( function() {
+                            return this.addCommit( spec );
+                        }.bind( this ) );
+                    }
+                }.bind( this ), null )
+                .done( function() {
+                    done('pullRevert');
+                }, function( err ) {
+                    console.error( err );
+                    done( null );
+                });
+            }
+        },
+
+        pullRevert: {
+            onPull: 'revertChange'
+        },
+
+        revertChange: {
+            handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
+                var theAddedWord,
+                    undoCommit;
+
+                this.git( 'log', [ '--pretty="%s--%H"' ] )
+                .then( function( commits ) {
+                    undoCommit = commits.split('\n').reduce( function( theCommit, commit ) {
+                        var trimmedCommitInfo = commit.substring(1, commit.length - 1),
+                            subjHash = trimmedCommitInfo.split('--');
+                        return subjHash[0] === REVERT_LOG_MSG ? subjHash[1] : theCommit;
+                    }, null );
+                    return this.diff( undoCommit );
+                }.bind( this ) )
+                .then( function( diff ) {
+                    theAddedWord = /\+([a-z]+)\n/.exec( diff )[1];
+                    return this.diffShadow();
+                }.bind( this ) )
+                .done( function( diff ) {
+                    var diffRe = /^[+-][a-z]+$/,
+                        changes = diff.split('\n').reduce( function( c, line ) {
+                            var match = diffRe.exec( line );
+                            return match ? c.concat( match[0] ) : c;
+                        }, [] );
+
+                    if ( changes.length === 1 && changes[0] === '-' + theAddedWord ) {
+                        gitDone();
+                        stepDone();
+                    } else {
+                        gitDone( 1, '\x1b[31;1mGitStream: [COMMIT REJECTED] Incorrect changes made to ' + WORDS_LIST + '\x1b[0m' );
+                        stepDone('revertChange');
+                    }
+                }, function( err ) {
+                    gitDone( -1, '\x1b[41;1m\x1b[37;1mGitStream Error: ' + err.toString() + '\x1b[0m');
+                    stepDone(null);
+                });
+            },
+
+            onCommit: 'finalPush'
+        },
+
+        finalPush: {
             onReceive: 'done'
         },
 
@@ -61,17 +180,26 @@ module.exports = {
     },
 
     viewer: {
-        title: 'Navigating history',
+        title: 'Undoing changes',
 
         steps: {
-            undoChange: 'Examine the <a href="http://www.git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History" target="_blank">commit log</a> and find the commit with the message "' + UNDO_LOG_MSG + '".&nbsp;  Determine which word was added in that commit and remove it from <code>' + WORDS_LIST + '</code>. (hint:  try using <code>git <a href="http://git-scm.com/docs/git-show" tar  get="_blank">show</a></code>)',
-            pushUndo: 'Push your changes.'
+            undoChange: 'Examine the <a href="http://www.git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History" target="_blank">commit log</a> and find the commit with the message "' + UNDO_LOG_MSG + '".&nbsp;  Determine which word was added in that commit and remove it from <code>' + WORDS_LIST + '</code>. Add and commit the change. (hint:  try using <code>git <a href="http://git-scm.com/docs/git-show" target="_blank">show</a></code>)',
+            pushUndo: 'Push your changes.',
+            pullRevert: 'Let\'s try undoing changes in another way. <a href="http://www.git-scm.com/docs/git-pull" target="_blank">Pull</a> the repo to get some new commits.',
+            revertChange: 'Examine the <a href="http://www.git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History" target="_blank">log</a> to find the commit with message "' + REVERT_LOG_MSG + '" This time, use <a href="http://www.git-scm.com/docs/git-revert"><code>git revert</code></a> on the commit.',
+            finalPush: 'Push your changes.'
         },
 
         feedback: {
             undoChange: {
                 undoChange: function( _, done ) {
-                    done('You should <em>only</em> remove the word that was addded in the marked commit. Run <code>git checkout ' + WORDS_LIST + '</code> and try again!');
+                    done('You should <em>only</em> remove the word that was addded in the marked commit. Run <code>git reset --hard ' + WORDS_LIST + '</code> and try again!');
+                }
+            },
+
+            revertChange: {
+                revertChange: function( _, done ) {
+                    done('You should <em>only</em> remove the word that was addded in the marked commit. Run <code>git reset --hard</code> and try again!');
                 }
             }
         }
@@ -79,37 +207,44 @@ module.exports = {
 
     repo: {
         commits: function( resourcesPath, done ) {
-            var MIN_COMMITS = 10,
-                MAX_COMMITS = 16,
+            var MIN_COMMITS = 5,
+                MAX_COMMITS = 10,
                 NUM_BASE_WORDS = 10,
 
                 minWords = NUM_BASE_WORDS + MAX_COMMITS,
                 path = require('path'), // repo and machine execute on the server, so this works
                 wordbank = require( path.join( resourcesPath, WORDBANK ) ), // require caches
-                numWords = Math.random() * ( MAX_COMMITS - MIN_COMMITS ) + minWords,
+                numWords = Math.floor( Math.random() * ( MAX_COMMITS - MIN_COMMITS ) + minWords ),
                 words = [],
-                additionalWords = [],
+                wordsList = [],
+                wordSlots = [],
                 commitSpecs = [],
-                commitToUndo = Math.floor( Math.random() * ( numWords - NUM_BASE_WORDS ) );
-
-            for (; numWords > 0; numWords--) {
-                ( numWords < NUM_BASE_WORDS - 1 ? words : additionalWords )
-                    .push( wordbank[ Math.floor( Math.random() * wordbank.length ) ] );
-            }
+                commitToUndo = Math.max( 1,
+                                Math.floor( Math.random() * ( numWords - NUM_BASE_WORDS - 1 ) ) );
 
             function addCommitSpec( msg ) {
                 commitSpecs.push({
                     msg: msg,
-                    files: [ { src: WORDS_LIST, template: { words: words.join('\n') } } ]
+                    files: [ { src: WORDS_LIST, template: { words: wordsList.join('\n\n') } } ]
                 });
             }
 
-            addCommitSpec('Initial commit');
+            for (; numWords > 0; numWords--) {
+                wordsList.push('');
+                words.push( wordbank[ Math.floor( Math.random() * wordbank.length ) ] );
+                wordSlots.push( numWords - 1 );
+            }
+            wordsList.pop();
+            shuffle( wordSlots );
 
-            additionalWords.map( function( word, i ) {
-                var msg = i === commitToUndo ? UNDO_LOG_MSG : 'Added a word';
-                words.splice( Math.floor( Math.random() * words.length ), 0, word );
-                addCommitSpec( msg );
+            words.forEach( function( word, i ) {
+                wordsList[ wordSlots[i] ]  = word;
+                if ( i === NUM_BASE_WORDS ) {
+                    addCommitSpec('Initial commit');
+                } else if ( i > NUM_BASE_WORDS ) {
+                    addCommitSpec( i === NUM_BASE_WORDS + commitToUndo ?
+                                  UNDO_LOG_MSG : NORMAL_LOG_MSG );
+                }
             });
 
             done( commitSpecs );
