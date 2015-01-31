@@ -88,35 +88,40 @@ replaceNPMIgnores( SRC_DIR )
             machines = [],
             viewers = [ ast.createProperty( '_order', ast.createArray( orderedExercises ) ) ],
             repos = [],
-            outputDir
+            outputDir,
+            writeMod = function( file, props ) {
+                // outputs a node module that exports an object of submodules
+                var mod = ast.createModule( null, ast.createObject( props ) )
+                fs.writeFile( file, escodegen.generate( mod ) )
+            }
 
         // split the configs
         exercises.forEach( function( exercise ) {
             var exerciseName = exercise.substring( exercise.indexOf('-') + 1 ),
-                exerciseConf = require( exerciseConfs[ exercise ].path ),
-                confAst = esprima.parse( exerciseConfs[ exercise ].data ),
-                combinedScopeExprs = ast.getCombinedScopeExprs( confAst ),
-                confTrees = ast.getConfSubtrees( confAst )
+                theConf = require( exerciseConfs[ exercise ].path ), // check for syntax errors
+                confAst = esprima.parse( exerciseConfs[ exercise ].data ), // config's parse tree
+                combinedScopeExprs = ast.getCombinedScopeExprs( confAst ), // defs at top of file
+                confTrees = ast.getConfSubtrees( confAst ), // machine, viewer, repo
+                mkConfSubmodule = function( confAst ) {
+                    /* a submodule takes the following form:
+                       function() {
+                         var privateVars = 'go here'
+                         return publicExport // usually an object
+                       }
+                     */
+                    var submodule = ast.createSubmodule( combinedScopeExprs, confAst )
+                    return ast.createProperty( exerciseName, submodule )
+                }
 
             // make the output directory
             outputDir = path.join( GEN_DIR, exerciseName )
             q.nfcall( fs.mkdir, outputDir )
-            .done( createExerciseDir.bind( null, exercise, exerciseConf ) )
-
-            function mkConfSubmodule( confAst ) {
-                var submodule = ast.createSubmodule( combinedScopeExprs, confAst )
-                return ast.createProperty( exerciseName, submodule )
-            }
+            .done( createExerciseDir.bind( null, exercise ) )
 
             machines.push( mkConfSubmodule( confTrees.machine ) )
             viewers.push( mkConfSubmodule( confTrees.viewer ) )
             repos.push( mkConfSubmodule( confTrees.repo || ast.createObject([]) ) )
         })
-
-        function writeMod( file, props ) {
-            var mod = ast.createModule( null, ast.createObject( props ) )
-            fs.writeFile( file, escodegen.generate( mod ) )
-        }
 
         // write out the split configs
         writeMod( MACHINES_FILE, machines )
