@@ -74,13 +74,19 @@ replaceNPMIgnores( SRC_DIR )
     return q.nfcall( fs.mkdir, GEN_DIR )
     .done( function() {
         var exercises = Object.keys( exerciseConfs ),
-            order = ast.createArray( exercises.sort().map( function( exercise ) {
-                if ( /^[0-9]+-/.test( exercise ) ) { // hide unordered exercises
-                    return ast.createLiteral( exercise.substring( exercise.indexOf('-') + 1 ) )
-                }
-            }).filter( function( name ) { return !!name } ) ),
+            orderRe = /^([0-9]+)-/,
+            orderedExercises = exercises.filter( function( ex ) {
+                    return orderRe.test( ex ) // hide unordered exercises
+                }).sort( function( ex1, ex2 ) {
+                    var getOrder = function( ex ) { return parseInt( orderRe.exec( ex )[1] ) },
+                        ex1Order = getOrder( ex1 ),
+                        ex2Order = getOrder( ex2 )
+                    return ex1Order < ex2Order ? -1 : 1
+                }).map( function( ex ) {
+                    return ast.createLiteral( ex.substring( ex.indexOf('-') + 1 ) )
+                }),
             machines = [],
-            viewers = [ ast.createProperty( '_order', order ) ],
+            viewers = [ ast.createProperty( '_order', ast.createArray( orderedExercises ) ) ],
             repos = [],
             outputDir
 
