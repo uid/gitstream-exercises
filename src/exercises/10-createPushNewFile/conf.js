@@ -25,7 +25,7 @@ module.exports = {
                     }
 
                     if ( exists ) {
-                        if ( commitMsg[0].toLowerCase() === MSG_EXPECTED )  {
+                        if ( commitMsg[0].toLowerCase() === MSG_EXPECTED ) {
                             gitDone()
                             stepDone('committedFile')
                         } else {
