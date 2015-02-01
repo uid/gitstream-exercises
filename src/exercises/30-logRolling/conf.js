@@ -206,28 +206,27 @@ module.exports = {
     },
 
     repo: {
-        commits: function( resourcesPath, done ) {
+        commits: function( done ) {
             var MIN_COMMITS = 5,
                 MAX_COMMITS = 10,
                 NUM_BASE_WORDS = 10,
 
                 minWords = NUM_BASE_WORDS + MAX_COMMITS,
                 path = require('path'), // repo and machine execute on the server, so this works
-                wordbank = require( path.join( resourcesPath, WORDBANK ) ), // require caches
+                wordbank = require( path.join( this.resourcesPath, WORDBANK ) ), // require caches
                 numWords = Math.floor( Math.random() * ( MAX_COMMITS - MIN_COMMITS ) + minWords ),
                 words = [],
                 wordsList = [],
                 wordSlots = [],
                 commitSpecs = [],
                 commitToUndo = Math.max( 1,
-                                Math.floor( Math.random() * ( numWords - NUM_BASE_WORDS - 1 ) ) )
-
-            function addCommitSpec( msg ) {
-                commitSpecs.push({
-                    msg: msg,
-                    files: [ { src: WORDS_LIST, template: { words: wordsList.join('\n\n') } } ]
-                })
-            }
+                                Math.floor( Math.random() * ( numWords - NUM_BASE_WORDS - 1 ) ) ),
+                addCommitSpec = function( msg ) {
+                    commitSpecs.push({
+                        msg: msg,
+                        files: [ { src: WORDS_LIST, template: { words: wordsList.join('\n\n') } } ]
+                    })
+                }
 
             for (; numWords > 0; numWords--) {
                 wordsList.push('')
