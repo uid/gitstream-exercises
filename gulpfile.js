@@ -11,7 +11,7 @@ var gulp = require('gulp'),
     production = process.env.NODE_ENV === 'production',
 
     path = {
-        js: [ '**/*.js', '!node_modules/**/*', '!viewers.js', '!machines.js', '!repos.js' ],
+        js: [ '**/*.js', '!node_modules/**/*', '!viewers.js', '!machines.js', '!repos.js', '!exercises/**/*' ],
         generated: [ 'viewers.js', 'machines.js', 'repos.js', 'exercises' ]
     }
 

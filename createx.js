@@ -97,8 +97,8 @@ replaceNPMIgnores( SRC_DIR )
 
         // split the configs
         exercises.forEach( function( exercise ) {
+            require( exerciseConfs[ exercise ].path ) // check for syntax errors
             var exerciseName = exercise.substring( exercise.indexOf('-') + 1 ),
-                theConf = require( exerciseConfs[ exercise ].path ), // check for syntax errors
                 confAst = esprima.parse( exerciseConfs[ exercise ].data ), // config's parse tree
                 combinedScopeExprs = ast.getCombinedScopeExprs( confAst ), // defs at top of file
                 confTrees = ast.getConfSubtrees( confAst ), // machine, viewer, repo
