@@ -5,7 +5,7 @@ var hellos = [ 'bf', 'c', 'cpp', 'erl', 'hs', 'java', 'js', 'py', 'rb', 'sh' ],
 
 module.exports = {
     global: {
-        timeLimit: 60
+        timeLimit: 300
     },
 
     machine: {
@@ -91,7 +91,7 @@ module.exports = {
         title: 'Removing files from a repository',
 
         steps: {
-            rmFile: 'Remove the <code>hello</code> file located at root of the repo and commit the change. (hint: try typing <code>man git-rm</code>)',
+            rmFile: 'Remove the file located in the root of the repo whose name starts with <code>hello</code> and commit the change. (hint: try typing <code>man git-rm</code>)',
             pushRmFile: 'Push the commit',
             rmDir: 'Remove the <code>' + MORE_HELLOS + '</code> directory, commit, and push.'
         },
