@@ -53,7 +53,7 @@ module.exports = {
         title: 'Adding a new file to remote version control',
 
         steps: {
-            createFile: 'Create a new file named "' + FILE_EXPECTED + '", <a href="http://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository#Tracking-New-Files" target="_blank">stage it</a>, and <a href="http://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository#Committing-Your-Changes" target="_blank">commit</a> it with the message "' + MSG_EXPECTED + '"',
+            createFile: 'Create a new file named "' + FILE_EXPECTED + '" by running <code>touch&nbsp;' + FILE_EXPECTED + '</code>, <a href="http://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository#Tracking-New-Files" target="_blank">stage it</a>, and <a href="http://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository#Committing-Your-Changes" target="_blank">commit</a> it with the message "' + MSG_EXPECTED + '"',
             committedFile: '<a href="http://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes#Pushing-to-Your-Remotes" target="_blank">Push</a> your commit'
         },
 
