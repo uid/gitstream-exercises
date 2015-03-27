@@ -4,19 +4,18 @@ Exercises for use in the GitStream interactive Git tutor.
 
 ## Table of Contents
 
-1. Creating a New Exercise
-2. Building the Exercises
-3. Configuration File Format
-	1. conf.js template
-	2. global
-	3. machine
-		1. Events and Callbacks
-		2. Events Types
-		3. Utility Methods
-	4. viewer
-	5. repo
-4. Exercise Debugging Workflow
-
+1. [Creating a New Exercise](#creating-a-new-exercise)
+2. [Building the Exercises](#building-the-exercises)
+3. [Configuration File Format](#configuration-file-format)
+    1. [conf.js template](#confjs-template)
+    2. [global](#global)
+    3. [machine](#machine)
+        1. [Events and Callbacks](#events-and-callbacks)
+        2. [Events Types](#event-types)
+        3. [Utility Methods](#utility-methods)
+    4. [viewer](#viewer)
+    5. [repo](#repo)
+4. [Exercise Debugging Workflow](#exercise-debugging-workflow)
 
 ## Creating a New Exercise
 
@@ -55,7 +54,6 @@ GitStream `package.json` to point `gitstream-exercises` to your own repo!
 ### conf.js template
 
 The following is a minimal template for the "conf.js" file.
-The 
 
 ```javascript
 'use strict'
@@ -146,7 +144,8 @@ The key name in the state object and callback function signature is as follows:
                         to be displayed in the terminal.
                         Depending on the operation, a non-zero exit code will prevent its
                         completion (see [githooks](http://git-scm.com/docs/githooks))
-* `stepDone:Function` - accepts the same arguments as `done`, above.
+* `stepDone:Function` - accepts the same arguments as `done`, above, with a final
+                        positional argument passed to the viewer as `stepOutput`.
 
 #### Event types
 
@@ -249,13 +248,32 @@ Note: tag events can also be detected, but it requires a fix that is in a sepera
 
 #### Utility Methods
 
-The `this` of an event callback contains several helpful methods for interacting with the
-repo and automating common tasks
-(see https://github.com/uid/gitstream/blob/master/src/server/exerciseUtils.js).
+The `this` of an event callback contains several helpful methods for interacting with
+the repo and automating common tasks
+(see [the docs](https://github.com/uid/gitstream/blob/master/src/server/exerciseUtils.js)).
 
 ### `viewer`
 
+* `title:String`    - The title of the exercise visible on the main page and at the top
+                      of the exercise page.
+* `steps:Object`    - An object mapping from step names (the same ones as in the
+                      `machine` section).
+                      The halt states should not be included here.
+* `feedback:Object` - An object with keys that are the names states or `onEnter`.
+                      The value is a function with the following signature:  
+                      `function( stepOutput, cb )` where  
+    - `stepOutput:Object` has keys `prev` and `new` that contain
+      the data provided to the callbacks of the previous and new
+      (current) states
+    - `cb:Function` can optionally be called with a string that is
+       displayed under the newly-entered state
+
 ### `repo`
+
+* `commits:Array` - an array of
+  [commit specs](https://github.com/uid/gitstream/blob/master/src/server/utils.js#L127)
+
+Note: templating is done using [Mustache syntax](https://mustache.github.io/mustache.5.html).
 
 ### Caveats
 
