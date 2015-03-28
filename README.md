@@ -105,12 +105,12 @@ module.exports = {
 
 Other than the `startState`, keys are the names of states and their values can be one of the following:
 
-* `String` - Simply steps into the named state.
+* `String` - Steps into the named state.
              `loopyState: 'loopyState'` is probably a bad idea.
 * `null`   - Denotes a halt state. Stepping into a halt state causes the "Done!" step
              to be highlighted and stops the countdown timer
 * `Object` - The most common (and useful) option is an object mapping event names to
-             callback functions performed when the event is triggered.
+             callback functions performed when the event is triggered.  
              Ex. `onReceive: function( repo, action, info, done )`
 
 #### Events and Callbacks
@@ -130,7 +130,7 @@ The key name in the state object and callback function signature is as follows:
                     (which is usually known in advance)
 * `info:Object`   - additional information associated with the action (see below)
 * `done:Function` - call with a state name or null to step into that state or with no
-                    arguments to remain in the current state
+                    arguments to remain in the current state without triggering a step
 
 ##### For handlers:
 
@@ -142,8 +142,8 @@ The key name in the state object and callback function signature is as follows:
 * `gitDone:Function`  - call with no arguments to allow the in-progress Git operation to
                         complete or call with `exitCode:Number` and optional feedback
                         to be displayed in the terminal.
-                        Depending on the operation, a non-zero exit code will prevent its
-                        completion (see [githooks](http://git-scm.com/docs/githooks))
+                        Depending on the operation, a non-zero exit code will prevent
+                        its completion (see [githooks][githooks])
 * `stepDone:Function` - accepts the same arguments as `done`, above, with a final
                         positional argument passed to the viewer as `stepOutput`.
 
@@ -179,7 +179,7 @@ The key name in the state object and callback function signature is as follows:
                 the commit from being recorded.
             </td>
             <td>
-                <code>msg</code> - the full text of the log message (may contain comments inserted by Git)
+                <code>msg:String</code> - the full text of the log message (may contain comments inserted by Git)
             </td>
         </tr>
         <tr>
@@ -203,7 +203,7 @@ The key name in the state object and callback function signature is as follows:
                 Note that local Git may display unexpected error messages when the remote
                 changes between an <code>info</code> and the actual operation.
             </td>
-            <td><code>head</code> - the requested HEAD</td>
+            <td><code>head:String</code> - the requested HEAD</td>
         </tr>
         <tr>
             <td>(Pre)Push</td()>
@@ -212,9 +212,9 @@ The key name in the state object and callback function signature is as follows:
                 A handler here can stop a push from ever reaching the remote.
             </td>
             <td>
-                <code>last</code>   - The oldest commit in the push<br>
-                <code>head</code>   - The newest commit in the push<br>
-                <code>branch</code> - The name of the pushed-to branch
+                <code>last:String</code>   - The oldest commit in the push<br>
+                <code>head:String</code>   - The newest commit in the push<br>
+                <code>branch:String</code> - The name of the pushed-to branch
             </td>
         </tr>
         <tr>
@@ -242,15 +242,12 @@ The key name in the state object and callback function signature is as follows:
 
 \* Updates the Shadowbranch, a ref containing the contents of the repository.
 
-Note: tag events can also be detected, but it requires a fix that is in a seperate
-[PR](https://github.com/substack/git-http-backend/pull/6) branch
-(let me know if you want it merged into master)
+Note: tag events can also be detected, but it requires a fix that is in a seperate [PR][tagpr] branch (let me know if you want it merged into master).
 
 #### Utility Methods
 
 The `this` of an event callback contains several helpful methods for interacting with
-the repo and automating common tasks
-(see [the docs](https://github.com/uid/gitstream/blob/master/src/server/exerciseUtils.js)).
+the repo and automating common tasks (see [the docs][exutils]).
 
 ### `viewer`
 
@@ -270,20 +267,19 @@ the repo and automating common tasks
 
 ### `repo`
 
-* `commits:Array` - an array of
-  [commit specs](https://github.com/uid/gitstream/blob/master/src/server/utils.js#L127)
+* `commits:Array` - an array of [commit specs][cispecs]
 
-Note: templating is done using [Mustache syntax](https://mustache.github.io/mustache.5.html).
+Note: templating is done using [Mustache syntax][mustache].
 
 ### Caveats
 
 * There can only be one handler for a given event type and GitStream, itself, handles the
   404 and Receive events.
 * The monolithic conf files are split before being sent to the client and server.
-  The `machine` and `repo` seconds are run on the server and can include `require` calls,
-  but the `viewer` section can only contain vanilla JS.  
+  The `machine` and `repo` sections are run on the server and can include `require` calls,
+  but the `viewer` section can only contain environment-agnostic JS.  
   Additionally, the variables and functions placed at the top of the conf file must also
-  be vanilla JS because they are inlined into the `viewer` file.
+  be environment-agnostic because they are inlined into the `viewer` file.
 
 ## Exercise Debugging Workflow
 
@@ -291,3 +287,10 @@ Note: templating is done using [Mustache syntax](https://mustache.github.io/must
 2. Build the exercises
 3. If you changed a `viewer` section, run `gulp browserify` in the GitStream repo
 4. Restart the GitStream server and view your changes
+
+
+[githooks]: http://git-scm.com/docs/githooks
+[tagpr]: https://github.com/substack/git-http-backend/pull/6
+[exutils]: https://github.com/uid/gitstream/blob/master/src/server/exerciseUtils.js#L43
+[cispecs]: https://github.com/uid/gitstream/blob/master/src/server/utils.js#L127
+[mustache]: https://mustache.github.io/mustache.5.html
