@@ -44,7 +44,16 @@ function createExerciseDir( exercise ) {
 
         pending = [
             q.nfcall( fs.stat, resourcesDir )
-            .then( utils.cp.bind( null, resourcesDir, outputDir ), function() { /* noop */ } ),
+            .then( function() {
+                // ugly. fix this
+                return q.nfcall( fs.readdir, resourcesDir )
+                .then( function( files ) {
+                    return q.all( files.map( function( file ) {
+                        return utils.cp( path.join( resourcesDir, file ), outputDir )
+                    }) )
+                })
+            })
+            .catch(function(){}),
             createNewRepo( repoPath )
         ]
 

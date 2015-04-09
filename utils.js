@@ -71,7 +71,7 @@ module.exports = {
 
     cp: function( from, to ) {
         var done = q.defer(),
-            cp = spawn( 'cp', [ '-rTf', from, to ] ),
+            cp = spawn( 'cp', [ '-rf', from, to ] ),
             cpErr = ''
 
         cp.stderr.on( 'data', function( data ) {
