@@ -53,7 +53,7 @@ function createExerciseDir( exercise ) {
                     }) )
                 })
             })
-            .catch(function(){}),
+            .catch(function() {}),
             createNewRepo( repoPath )
         ]
 
