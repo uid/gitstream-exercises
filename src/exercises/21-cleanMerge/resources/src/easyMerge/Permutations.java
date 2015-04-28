@@ -10,17 +10,19 @@ public class Permutations {
      * @param s a sequence of characters with no repeats
      */
     public static void printPermutations(String s) {
-        // Implement this!!
-        throw new UnsupportedOperationException();
+        // implement this using a call to the two-argument printPermutations
+        // your collaborator will write that later
+
+        printPermutations(/* your code here */);
     }
 
     /**
      * Private helper method for printPermutations.
-     * Example: printPermutations("blah","ab") will print "abblah" and "bablah"
-     * @param tail A string that will be printed after every permutation of s
+     * Example: printPermutations("ab", "123") will print "ab123" and "ba123"
      * @param s The string for which all permutations will be printed
+     * @param tail A string that will be appended to every permutation of s
      */
-    private static void printPermutations(String tail, String s) {
+    private static void printPermutations(String s, String tail) {
         throw new UnsupportedOperationException();
     }
 }

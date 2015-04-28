@@ -29,7 +29,7 @@ module.exports = {
                 })
             }
         },
-        // possibly disable all pulls between these states to prevent pulling down the conflict
+
         pushCommit: {
             onPreInfo: 'pullRepo'
         },
@@ -39,17 +39,10 @@ module.exports = {
         },
 
         mergeFile: {
-            handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
-                this.shadowFileContains( PERMUTATIONS, /(<{7}|>{7}|={7})/g, function( err, containsConflict ) {
-                    if ( !containsConflict ) {
-                        gitDone()
-                        stepDone( 'mergeFile', { ok: true } )
-                    } else {
-                        gitDone( 1, '\x1b[311mGitStream: [COMMIT REJECTED] You forgot to remove the conflict markers\x1b[0m' )
-                        stepDone( 'mergeFile', { ok: false } )
-                    }
-                })
-            },
+            onMerge: 'finalPush'
+        },
+
+        finalPush: {
             onReceive: function( repo, action, info, done ) {
                 var pushingToMaster = info.reduce( function( master, update ) {
                     return master || update.name === 'refs/heads/master'
@@ -62,22 +55,17 @@ module.exports = {
     },
 
     viewer: {
-        title: 'Merging a collaborator\'s work',
+        title: 'Cleanly merging a collaborator\'s work (Java)',
 
         steps: {
-            editFile: 'Import the project into eclipse, and implement only the public printPermutations method. Commit your work.',
+            editFile: 'Import the project into Eclipse and implement <code>public static void printPermutations()</code>. Commit your work.',
             pushCommit: 'Push your commit',
             pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! <a href="http://www.git-scm.com/docs/git-pull" target="_blank">Pull</a> the repo to get the latest changes.',
-            mergeFile: 'It was a conflict-free merge! Make sure the main method works, making a new commit if necessary, then push!'
+            mergeFile: 'There were no conflicts! Make the merge commit and then verify that the program works',
+            finalPush: 'Push the merged code'
         },
 
         feedback: {
-            mergeFile: {
-                mergeFile: function( stepOutput, cb ) {
-                    var FEEDBACK = 'You forgot to remove the conflict markers (&lt&lt&lt&lt&lt&lt&lt, =======, and &gt&gt&gt&gt&gt&gt&gt)'
-                    cb( stepOutput.prev.ok ? '' : FEEDBACK )
-                }
-            }
         }
     },
 
@@ -85,7 +73,6 @@ module.exports = {
         commits: [
             {
                 msg: 'Initial commit',
-                author: 'George Du <gdu@mit.edu>', // must be in User <email> format
                 files: [ PROJECT, CLASSPATH, GITIGNORE, PERMUTATIONS ]
             }
         ]

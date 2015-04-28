@@ -10,8 +10,10 @@ public class Permutations {
      * @param s a sequence of characters with no repeats
      */
     public static void printPermutations(String s) {
-        // Implement this!!
-        throw new UnsupportedOperationException();
+        // implement this using a call to the two-argument printPermutations
+        // your collaborator will write that later
+
+        printPermutations(/* your code here */);
     }
 
     /**
@@ -20,12 +22,12 @@ public class Permutations {
      * @param tail A string that will be printed after every permutation of s
      * @param s The string for which all permutations will be printed
      */
-    private static void printPermutations(String tail, String s) {
+    private static void printPermutations(String s, String tail) {
         if (s.length() == 0) {
             System.out.println(tail);
         }
         for (int i = 0; i < s.length(); i++) {
-            printPermutations(s.charAt(i) + tail, s.substring(0, i) + s.substring(i + 1, s.length()));
+            printPermutations(s.substring(0, i) + s.substring(i + 1, s.length()), s.charAt(i) + tail);
         }
     }
 }
