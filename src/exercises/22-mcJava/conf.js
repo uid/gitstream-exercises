@@ -3,9 +3,9 @@
 var CLASSPATH = '.classpath',
     PROJECT = '.project',
     GITIGNORE = '.gitignore',
+    SRC = 'src',
     ARRAYS = 'src/lib/Arrays.java',
-    ARRAYS_OTHER = 'src/lib/Arrays_other.java',
-    ARRAYS_TEST = 'src/test/ArraysTest.java'
+    ARRAYS_OTHER = 'Arrays_other.java'
 
 module.exports = {
     global: {
@@ -63,10 +63,10 @@ module.exports = {
     },
 
     viewer: {
-        title: 'Handling a merge conflict',
+        title: 'Handling a merge conflict (Java)',
 
         steps: {
-            editFile: 'Import the project into eclipse, and implement the argmax method. Make sure the test passes, and commit your work.',
+            editFile: 'Import the project into Eclipse, and implement the argmax method. Make sure the test passes, and commit your work.',
             pushCommit: 'Push your commit',
             pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! <a href="http://www.git-scm.com/docs/git-pull" target="_blank">Pull</a> the repo to get the latest changes.',
             mergeFile: 'There was a merge conflict! Edit the file and merge the changes. When the tests pass, add, commit, and push!'
@@ -87,7 +87,7 @@ module.exports = {
             {
                 msg: 'Initial commit',
                 author: 'George Du <gdu@mit.edu>', // must be in User <email> format
-                files: [ PROJECT, CLASSPATH, GITIGNORE, ARRAYS, ARRAYS_TEST ]
+                files: [ PROJECT, CLASSPATH, GITIGNORE, SRC ]
             }
         ]
     }
