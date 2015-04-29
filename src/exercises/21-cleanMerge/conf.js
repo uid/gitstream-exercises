@@ -61,8 +61,8 @@ module.exports = {
             editFile: 'Import the project into Eclipse and implement <code>public static void printPermutations()</code> by calling the helper (don\'t implement the helper). Commit your work.',
             pushCommit: 'Push your commit.',
             pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! Pull the repo to get the latest changes.',
-            mergeFile: 'There were no conflicts! Make the merge commit and then verify that the program works. Remeber to refresh the project in Eclipse to see the current code after using Git.',
-            finalPush: 'Push the merged code.'
+            mergeFile: 'There were no conflicts! Enter a log message for the automatically-generated merge commit.',
+            finalPush: 'Refresh your project in Eclipse to see the changes. Once you\'ve verified that the program works, push the merged code.'
         },
 
         feedback: {
