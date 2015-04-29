@@ -9,7 +9,7 @@ var CLASSPATH = '.classpath',
 
 module.exports = {
     global: {
-        timeLimit: 420
+        timeLimit: Infinity
     },
 
     machine: {
