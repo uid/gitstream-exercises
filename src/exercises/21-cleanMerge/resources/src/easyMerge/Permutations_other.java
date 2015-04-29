@@ -18,9 +18,9 @@ public class Permutations {
 
     /**
      * Private helper method for printPermutations.
-     * Example: printPermutations("blah","ab") will print "abblah" and "bablah"
-     * @param tail A string that will be printed after every permutation of s
+     * Example: printPermutations("ab", "123") will print "ab123" and "ba123"
      * @param s The string for which all permutations will be printed
+     * @param tail A string that will be appended to every permutation of s
      */
     private static void printPermutations(String s, String tail) {
         if (s.length() == 0) {
