@@ -58,11 +58,11 @@ module.exports = {
         title: 'Cleanly merging a collaborator\'s work (Java)',
 
         steps: {
-            editFile: 'Import the project into Eclipse and implement <code>public static void printPermutations()</code>. Commit your work.',
-            pushCommit: 'Push your commit',
-            pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! <a href="http://www.git-scm.com/docs/git-pull" target="_blank">Pull</a> the repo to get the latest changes.',
-            mergeFile: 'There were no conflicts! Make the merge commit and then verify that the program works',
-            finalPush: 'Push the merged code'
+            editFile: 'Import the project into Eclipse and implement <code>public static void printPermutations()</code> by calling the helper (don\'t implement the helper). Commit your work.',
+            pushCommit: 'Push your commit.',
+            pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! Pull the repo to get the latest changes.',
+            mergeFile: 'There were no conflicts! Make the merge commit and then verify that the program works. Remeber to refresh the project in Eclipse to see the current code after using Git.',
+            finalPush: 'Push the merged code.'
         },
 
         feedback: {
