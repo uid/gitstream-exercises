@@ -35,11 +35,7 @@ module.exports = {
         },
 
         pullRepo: {
-            onPull: 'mergeFile'
-        },
-
-        mergeFile: {
-            onMerge: 'finalPush'
+            onPull: 'finalPush'
         },
 
         finalPush: {
@@ -61,8 +57,7 @@ module.exports = {
             editFile: 'Import the project into Eclipse and implement <code>public static void printPermutations()</code>. Commit your work.',
             pushCommit: 'Push your commit',
             pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! <a href="http://www.git-scm.com/docs/git-pull" target="_blank">Pull</a> the repo to get the latest changes.',
-            mergeFile: 'There were no conflicts! Make the merge commit and then verify that the program works',
-            finalPush: 'Push the merged code'
+            finalPush: 'There were no conflicts! Make the merge commit, verify that the program works, and push your code!'
         },
 
         feedback: {
