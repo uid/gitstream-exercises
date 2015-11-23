@@ -4,8 +4,8 @@ var CLASSPATH = '.classpath',
     PROJECT = '.project',
     GITIGNORE = '.gitignore',
     SRC = 'src',
-    ARRAYS = 'src/lib/Arrays.java',
-    ARRAYS_OTHER = 'Arrays_other.java'
+    ARRAYS = 'src/ArrayUtil.java',
+    ARRAYS_OTHER = 'ArrayUtil_other.java'
 
 module.exports = {
     global: {
@@ -66,7 +66,7 @@ module.exports = {
         title: 'Handling a merge conflict (Java)',
 
         steps: {
-            editFile: 'Import the project into Eclipse, and implement the argmax method. Make sure the test passes, and commit your work.',
+            editFile: 'Import the project into Eclipse, and implement the <code>argmax</code> method. Make sure the test passes, and commit your work.',
             pushCommit: 'Push your commit.',
             pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! Pull the repo to get the latest changes.',
             mergeFile: 'There was a merge conflict! Edit the file and merge the changes (remember to refresh the Eclipse project). When the tests pass, add, commit, and push!'

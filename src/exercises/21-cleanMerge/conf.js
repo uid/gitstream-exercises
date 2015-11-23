@@ -3,8 +3,8 @@
 var CLASSPATH = '.classpath',
     PROJECT = '.project',
     GITIGNORE = '.gitignore',
-    PERMUTATIONS = 'src/easyMerge/Permutations.java',
-    PERMUTATIONS_OTHER = 'src/easyMerge/Permutations_other.java'
+    PERMUTATIONS = 'src/Permutations.java',
+    PERMUTATIONS_OTHER = 'src/Permutations_other.java'
 
 module.exports = {
     global: {
@@ -62,7 +62,7 @@ module.exports = {
             pushCommit: 'Push your commit.',
             pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! Pull the repo to get the latest changes.',
             mergeFile: 'There were no conflicts! Enter a log message for the automatically-generated merge commit.',
-            finalPush: 'Refresh your project in Eclipse to see the changes. Once you\'ve verified that the program works, push the merged code.'
+            finalPush: 'Refresh your project in Eclipse to see the changes. Run <code>main</code> to verify that the program works, then push the merged code.'
         },
 
         feedback: {
