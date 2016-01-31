@@ -5,7 +5,7 @@ var TIMESADD = 'times_add.py',
 
 module.exports = {
     global: {
-        timeLimit: 300
+        timeLimit: Infinity
     },
 
     machine: {

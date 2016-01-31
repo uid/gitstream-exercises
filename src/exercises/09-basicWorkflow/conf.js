@@ -6,7 +6,7 @@ var EDITFILE = 'ready_for_6005.py',
 
 module.exports = {
     global: {
-        timeLimit: 300
+        timeLimit: Infinity
     },
 
     machine: {

@@ -5,7 +5,7 @@ var hellos = [ 'bf', 'c', 'cpp', 'erl', 'hs', 'java', 'js', 'py', 'rb', 'sh' ],
 
 module.exports = {
     global: {
-        timeLimit: 300
+        timeLimit: Infinity
     },
 
     machine: {
