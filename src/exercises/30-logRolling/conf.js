@@ -21,7 +21,7 @@ function shuffle( list ) {
 
 module.exports = {
     global: {
-        timeLimit: 300
+        timeLimit: Infinity
     },
 
     machine: {
