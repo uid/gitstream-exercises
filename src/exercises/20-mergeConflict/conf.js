@@ -13,17 +13,24 @@ module.exports = {
 
         editFile: {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
-                var conflict = {
-                    msg: 'Implemented times_add',
-                    files: [ {
-                        src: TIMESADD_CONFLICT,
-                        dest: TIMESADD
-                    } ]
-                }
-                this.addCommit( conflict, function( err ) {
-                    gitDone( Number(!!err), err )
-                    stepDone('pushCommit')
-                })
+                this.shadowFileContains( TIMESADD, /"""\n    pass/g, function( err, unch ) {
+                    if ( !unch ) {
+                        var conflict = {
+                            msg: 'Implemented times_add',
+                            files: [ {
+                                src: TIMESADD_CONFLICT,
+                                dest: TIMESADD
+                            } ]
+                        }
+                        this.addCommit( conflict, function( err ) {
+                            gitDone( Number(!!err), err )
+                            stepDone('pushCommit')
+                        })
+                    } else {
+                        gitDone( 1, '\x1b[311mGitStream: [COMMIT REJECTED] You should remove the pass statement.\x1b[0m' )
+                        stepDone( 'editFile' )
+                    }
+                }.bind( this ) )
             }
         },
         // possibly disable all pulls between these states to prevent pulling down the conflict
@@ -69,6 +76,11 @@ module.exports = {
         },
 
         feedback: {
+            editFile: {
+                editFile: function( stepOutput, cb ) {
+                    cb( 'You forgot to remove the <code>pass</code> statement.' )
+                }
+            },
             mergeFile: {
                 mergeFile: function( stepOutput, cb ) {
                     var FEEDBACK = 'You forgot to remove the conflict markers (&lt&lt&lt&lt&lt&lt&lt, =======, and &gt&gt&gt&gt&gt&gt&gt)'
