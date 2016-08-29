@@ -91,7 +91,7 @@ module.exports = {
         title: 'Removing files from a repository',
 
         steps: {
-            rmFile: 'Remove the file located in the root of the repo whose name starts with <code>hello</code> and commit the change. (hint: try typing <code>man git-rm</code>)',
+            rmFile: 'Remove the file located in the root of the repo whose name starts with <code>hello</code> and commit the change. (hint: try typing <code>git help rm</code>)',
             pushRmFile: 'Push the commit',
             rmDir: 'Remove the <code>' + MORE_HELLOS + '</code> directory, commit, and push.'
         },
