@@ -59,7 +59,7 @@ module.exports = {
         title: 'Version controlling your changes',
 
         steps: {
-            editFile: 'Implement the <code>' + IMPL + '</code> function in <code>' + EDITFILE + '</code>. When the tests pass, stage the file using <code>git&nbsp;add&nbsp;' + EDITFILE + '</code>. Run <code>git&nbsp;status</code> and <code>git&nbsp;diff&nbsp;--staged</code> to verify that you&apos;re committing the right changes. Finally <a href="http://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository#Committing-Your-Changes" target="_blank">commit</a> with the message "' + MSG_EXPECTED + '"',
+            editFile: 'Implement the <code>' + IMPL + '</code> function in <code>' + EDITFILE + '</code> and then stage the changes using <code>git&nbsp;add&nbsp;' + EDITFILE + '</code>. Run <code>git&nbsp;status</code> and <code>git&nbsp;diff&nbsp;--staged</code> to verify that you&apos;re committing the right changes. Finally <a href="http://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository#Committing-Your-Changes" target="_blank">commit</a> with the message "' + MSG_EXPECTED + '"',
             pushCommit: '<a href="http://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes#Pushing-to-Your-Remotes" target="_blank">Push</a>  your changes.'
         },
 
