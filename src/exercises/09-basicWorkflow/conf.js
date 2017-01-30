@@ -1,6 +1,6 @@
 'use strict'
 
-var EDITFILE = 'ready_for_6005.py',
+var EDITFILE = 'ready_for_6031.py',
     IMPL = 'is_code_good',
     MSG_EXPECTED = 'Implemented ' + IMPL
 
@@ -19,7 +19,7 @@ module.exports = {
 
                 this.diffShadow().then( function( diff ) {
                     var madeChange = diff.split('\n').reduce( function( changed, diffLine ) {
-                        return diffLine.indexOf('+++ b/ready_for_6005.py') !== -1 ? true : changed
+                        return diffLine.indexOf('+++ b/ready_for_6031.py') !== -1 ? true : changed
                     }, false )
                     if ( !madeChange ) {
                         gitDone( 1, '\x1b[311mGitStream: [COMMIT REJECTED] "' + IMPL + '" must be implemented.\x1b[0m' )
