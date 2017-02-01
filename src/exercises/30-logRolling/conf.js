@@ -193,13 +193,13 @@ module.exports = {
         feedback: {
             undoChange: {
                 undoChange: function( _, done ) {
-                    done('You should <em>only</em> remove the word that was addded in the marked commit. Run <code>git reset --hard ' + WORDS_LIST + '</code> and try again!')
+                    done('You should <em>only</em> remove the word that was added in the marked commit. Run <code>git reset --hard</code> and try again!')
                 }
             },
 
             revertChange: {
                 revertChange: function( _, done ) {
-                    done('You should <em>only</em> remove the word that was addded in the marked commit. Run <code>git reset --hard</code> and try again!')
+                    done('You should <em>only</em> remove the word that was added in the marked commit. Run <code>git reset --hard</code> and try again!')
                 }
             }
         }
