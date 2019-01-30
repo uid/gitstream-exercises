@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # silence script
 exec 3>&1 4>&2 1>/dev/null 2>&1
 
