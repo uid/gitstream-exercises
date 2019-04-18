@@ -69,7 +69,7 @@ module.exports = {
             editFile: 'Import the project into Eclipse, and implement the <code>argmax</code> method. Make sure the test passes, and commit your work.',
             pushCommit: 'Push your commit.',
             pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! Pull the repo to get the latest changes.',
-            mergeFile: 'There was a merge conflict! Edit the file and merge the changes (remember to refresh the Eclipse project). When the tests pass, add, commit, and push!'
+            mergeFile: 'There was a merge conflict! Edit the file and merge the changes (remember to refresh the Eclipse project). When you\'re done, add, commit, and push!'
         },
 
         feedback: {

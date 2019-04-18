@@ -1,6 +1,6 @@
 'use strict'
 
-var EDITFILE = 'ready_for_6005.py',
+var EDITFILE = 'ready_for_6031.py',
     IMPL = 'is_code_good',
     MSG_EXPECTED = 'Implemented ' + IMPL
 
@@ -19,7 +19,7 @@ module.exports = {
 
                 this.diffShadow().then( function( diff ) {
                     var madeChange = diff.split('\n').reduce( function( changed, diffLine ) {
-                        return diffLine.indexOf('+++ b/ready_for_6005.py') !== -1 ? true : changed
+                        return diffLine.indexOf('+++ b/ready_for_6031.py') !== -1 ? true : changed
                     }, false )
                     if ( !madeChange ) {
                         gitDone( 1, '\x1b[311mGitStream: [COMMIT REJECTED] "' + IMPL + '" must be implemented.\x1b[0m' )
@@ -59,7 +59,7 @@ module.exports = {
         title: 'Version controlling your changes',
 
         steps: {
-            editFile: 'Implement the <code>' + IMPL + '</code> function in <code>' + EDITFILE + '</code>. When the tests pass, stage the file using <code>git&nbsp;add&nbsp;' + EDITFILE + '</code>. Run <code>git&nbsp;status</code> and <code>git&nbsp;diff&nbsp;--staged</code> to verify that you&apos;re committing the right changes. Finally <a href="http://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository#Committing-Your-Changes" target="_blank">commit</a> with the message "' + MSG_EXPECTED + '"',
+            editFile: 'Implement the <code>' + IMPL + '</code> function in <code>' + EDITFILE + '</code> and then stage the changes using <code>git&nbsp;add&nbsp;' + EDITFILE + '</code>. Run <code>git&nbsp;status</code> and <code>git&nbsp;diff&nbsp;--staged</code> to verify that you&apos;re committing the right changes. Finally <a href="http://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository#Committing-Your-Changes" target="_blank">commit</a> with the message "' + MSG_EXPECTED + '"',
             pushCommit: '<a href="http://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes#Pushing-to-Your-Remotes" target="_blank">Push</a>  your changes.'
         },
 

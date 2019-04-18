@@ -13,7 +13,11 @@ module.exports = {
     viewer: {
         title: 'Getting an existing repository',
         steps: {},
-        feedback: {}
+        feedback: {
+            null: {
+                done: 'Your repository now contains the file <code>hello.txt</code>; typing <code>git log</code> will show its history.'
+            }
+        }
     },
 
     repo: {
