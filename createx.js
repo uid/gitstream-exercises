@@ -80,7 +80,7 @@ function replaceNPMIgnores( src ) {
 replaceNPMIgnores( SRC_DIR )
 .then( utils.getExercises )
 .done( function( exerciseConfs ) {
-    return q.nfcall( fs.mkdir, GEN_DIR )
+    return q.nfcall( fs.mkdir, GEN_DIR, { recursive: true })
     .done( function() {
         var exercises = Object.keys( exerciseConfs ),
             orderRe = /^([0-9]+)-/,
@@ -101,7 +101,7 @@ replaceNPMIgnores( SRC_DIR )
             writeMod = function( file, props ) {
                 // outputs a node module that exports an object of submodules
                 var mod = ast.createModule( null, ast.createObject( props ) )
-                fs.writeFile( file, escodegen.generate( mod ) )
+                fs.writeFile( file, escodegen.generate( mod ), (err) => { if (err) console.error(err); })
             }
 
         // split the configs
