@@ -116,7 +116,7 @@ module.exports = {
         commits: function( done ) {
             var commits = [ { msg: 'Inital commit', files: [ 'README.md' ] } ],
                 NUM_EXTRAS = 4,
-                extensions = this._.sample( this._.shuffle( hellos ), NUM_EXTRAS + 1 )
+                extensions = this._.sampleSize( this._.shuffle( hellos ), NUM_EXTRAS + 1 )
 
             commits.push({
                 msg: 'Added some hello worlds',
