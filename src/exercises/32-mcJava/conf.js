@@ -52,10 +52,10 @@ module.exports = {
                 })
             },
             onReceive: function( repo, action, info, done ) {
-                var pushingToMaster = info.reduce( function( master, update ) {
-                    return master || update.name === 'refs/heads/master'
+                var pushingToMain = info.reduce( function( main, update ) {
+                    return main || update.name === 'refs/heads/main'
                 }, false )
-                return pushingToMaster ? done('done') : done()
+                return pushingToMain ? done('done') : done()
             }
         },
 

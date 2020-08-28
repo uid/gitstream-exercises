@@ -19,14 +19,14 @@ rm "$gitroot"/.git/hooks/*
 # remove added remotes and refs
 git remote | grep -v "^origin$" | xargs -L 1 git remote remove
 git remote prune origin
-git show-ref --tags --heads | grep -v "/master$" | cut -d" " -f 2 | xargs -L 1 git update-ref -d
+git show-ref --tags --heads | grep -v "/main$" | cut -d" " -f 2 | xargs -L 1 git update-ref -d
 
-# move back to master, clean up the sandbox, and reset to origin state
-git checkout -f master
+# move back to main, clean up the sandbox, and reset to origin state
+git checkout -f main
 git reset --hard HEAD
 git clean -df
 git fetch origin
-git reset --hard origin/master
+git reset --hard origin/main
 
 # remove unnecessary blobs
 git reflog expire --expire=now --all
