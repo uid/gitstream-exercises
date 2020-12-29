@@ -37,12 +37,6 @@ populating the conf file.
 When you are finished designing an exercise, build them by running
 
 ```
-$ node_modules/.bin/gulp
-```
-
-which will also perform codestyle checks, or by directly running
-
-```
 $ ./createx.js
 ```
 

@@ -10,16 +10,8 @@
     "install": "./createx.js"
   },
   "dependencies": {
-    "escodegen": "^1.4.1",
-    "esprima": "^1.2.2",
+    "escodegen": "^2.0.0",
+    "esprima": "^4.0.1",
     "q": "^1.0.1"
-  },
-  "devDependencies": {
-    "gulp": "^3.8.7",
-    "gulp-jscs": "^1.1.2",
-    "gulp-jshint": "^1.8.4",
-    "gulp-plumber": "^0.6.5",
-    "jshint-stylish": "^0.4.0",
-    "rimraf": "^2.2.8"
   }
 }
