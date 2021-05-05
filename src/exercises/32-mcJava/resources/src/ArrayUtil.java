@@ -5,6 +5,13 @@ public class ArrayUtil {
      * @param input a nonempty array of unique elements
      */
     public static int argmax(int[] input) {
-        throw new UnsupportedOperationException("implement me!");
+        int maxValue = Integer.MIN_VALUE;
+        int maxIndex = -1;
+        for (int i = 0; i < input.length; ++i) {
+            if (input[i] >= maxValue) {
+                // TODO
+            }
+        }
+        return maxIndex;
     }
 }

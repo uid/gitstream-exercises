@@ -13,7 +13,7 @@ public class ArrayUtil {
                 currentMaximum = input[i];
                 currentArgmax = i;
             }
-            i++;
+            i--;
         }
         return currentArgmax;
     }
