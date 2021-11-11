@@ -1,0 +1,32 @@
+[
+    {
+        "city": "New York",
+        "population": 8419000,
+        "country": "USA"
+    },
+
+    {
+        "city": "Boston",
+        "population": ???,
+        "country": ???
+    },
+
+    {
+        "city": "Beijing",
+        "population": 21540000,
+        "country": "USA"
+    },
+
+    {
+        "city": "Lagos",
+        "population": 15387000,
+        "country": "Nigeria"
+    },
+
+    {
+        "city": "Moscow",
+        "population": 11920000,
+        "country": "Russia"
+    }
+
+]

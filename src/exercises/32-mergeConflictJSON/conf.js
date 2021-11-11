@@ -1,11 +1,8 @@
 'use strict'
 
-var CLASSPATH = '.classpath',
-    PROJECT = '.project',
-    GITIGNORE = '.gitignore',
-    SRC = 'src',
-    ARRAYS = 'src/ArrayUtil.java',
-    ARRAYS_OTHER = 'ArrayUtil_other.java'
+var GITIGNORE = '.gitignore',
+    CITIES = 'cities.json',
+    CITIES_OTHER = 'cities_other.json'
 
 module.exports = {
     global: {
@@ -18,10 +15,10 @@ module.exports = {
         editFile: {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
                 var conflict = {
-                    msg: 'Implemented argmax',
+                    msg: 'changed population units to thousands',
                     files: [ {
-                        src: ARRAYS_OTHER,
-                        dest: ARRAYS
+                        src: CITIES_OTHER,
+                        dest: CITIES
                     } ]
                 }
                 this.addCommit( conflict, function( err ) {
@@ -41,7 +38,7 @@ module.exports = {
 
         mergeFile: {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
-                this.shadowFileContains( ARRAYS, /(<{7}|>{7}|={7})/g, function( err, containsConflict ) {
+                this.shadowFileContains( CITIES, /(<{7}|>{7}|={7})/g, function( err, containsConflict ) {
                     if ( !containsConflict ) {
                         gitDone()
                         stepDone( 'mergeFile', { ok: true } )
@@ -66,10 +63,10 @@ module.exports = {
         title: 'Handling a merge conflict (Java)',
 
         steps: {
-            editFile: 'Import the project into Eclipse, and finish implementing the <code>argmax</code> method. Make sure the tests pass, and commit your work.',
+            editFile: 'Edit cities.json in VS Code (or any text editor) and fill in the missing information about Boston. Commit your work.',
             pushCommit: 'Push your commit.',
             pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! Pull the repo to get the latest changes.',
-            mergeFile: 'There was a merge conflict! Edit the file and merge the changes (remember to refresh the Eclipse project). Make sure the tests pass again. When you\'re done, add, commit, and push!'
+            mergeFile: 'There was a merge conflict! Edit the file and merge the changes carefully. When you\'re done, add, commit, and push!'
         },
 
         feedback: {
@@ -87,7 +84,7 @@ module.exports = {
             {
                 msg: 'Initial commit',
                 author: 'George Du <gdu@mit.edu>', // must be in User <email> format
-                files: [ PROJECT, CLASSPATH, GITIGNORE, SRC ]
+                files: [ GITIGNORE, CITIES ]
             }
         ]
     }

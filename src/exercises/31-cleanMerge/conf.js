@@ -1,10 +1,8 @@
 'use strict'
 
-var CLASSPATH = '.classpath',
-    PROJECT = '.project',
-    GITIGNORE = '.gitignore',
-    PERMUTATIONS = 'src/Permutations.java',
-    PERMUTATIONS_OTHER = 'src/Permutations_other.java'
+var GITIGNORE = '.gitignore',
+    CITIES = 'cities.json',
+    CITIES_OTHER = 'cities_other.json'
 
 module.exports = {
     global: {
@@ -17,10 +15,10 @@ module.exports = {
         editFile: {
             handlePreCommit: function( repo, action, info, gitDone, stepDone ) {
                 var conflict = {
-                    msg: 'Implemented recursive helper method',
+                    msg: 'added Tokyo',
                     files: [ {
-                        src: PERMUTATIONS_OTHER,
-                        dest: PERMUTATIONS
+                        src: CITIES_OTHER,
+                        dest: CITIES
                     } ]
                 }
                 this.addCommit( conflict, function( err ) {
@@ -55,14 +53,14 @@ module.exports = {
     },
 
     viewer: {
-        title: 'Cleanly merging a collaborator\'s work (Java)',
+        title: 'Cleanly merging a collaborator\'s work',
 
         steps: {
-            editFile: 'Import the project into Eclipse and implement <code>public static void printPermutations()</code> by calling the helper (don\'t implement the helper). Commit your work.',
+            editFile: 'Edit cities.json in VS Code (or any text editor) and fill in the missing information about Boston. Commit your work.',
             pushCommit: 'Push your commit.',
             pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! Pull the repo to get the latest changes.',
             mergeFile: 'There were no conflicts! If prompted, enter a log message for the automatically-generated merge commit.',
-            finalPush: 'Refresh your project in Eclipse to see the changes. Run <code>main</code> to verify that the program works, then push the merged code.'
+            finalPush: 'Look at the merged changes in your editor to verify that the merge succeeded, then push the merged commit.'
         },
 
         feedback: {
@@ -73,7 +71,7 @@ module.exports = {
         commits: [
             {
                 msg: 'Initial commit',
-                files: [ PROJECT, CLASSPATH, GITIGNORE, PERMUTATIONS ]
+                files: [ GITIGNORE, CITIES ]
             }
         ]
     }

@@ -1,0 +1,32 @@
+[
+    {
+        "city": "New York",
+        "populationInMillions": 8.419,
+        "country": "USA"
+    },
+
+    {
+        "city": "Boston",
+        "populationInMillions": ???,
+        "country": ???
+    },
+
+    {
+        "city": "Beijing",
+        "populationInMillions": 21.54,
+        "country": "USA"
+    },
+
+    {
+        "city": "Lagos",
+        "populationInMillions": 15.387,
+        "country": "Nigeria"
+    },
+
+    {
+        "city": "Moscow",
+        "populationInMillions": 11.92,
+        "country": "Russia"
+    }
+
+]
