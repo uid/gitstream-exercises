@@ -38,5 +38,8 @@ git gc --prune=now
 # reinstate the hooks
 cp "$gitroot"/.gitstream/hooks/* "$gitroot"/.git/hooks/
 
+# make sure we are always doing git merge on pull, not rebase
+git config --local pull.rebase false
+
 # let the user know that everything went well
 >&3 echo "GitStream: Follow the instructions in your browser!"
