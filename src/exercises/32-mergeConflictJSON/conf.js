@@ -60,7 +60,7 @@ module.exports = {
     },
 
     viewer: {
-        title: 'Handling a merge conflict (Java)',
+        title: 'Handling a merge conflict',
 
         steps: {
             editFile: 'Edit cities.json in VS Code (or any text editor) and fill in the missing information about Boston. Commit your work.',
