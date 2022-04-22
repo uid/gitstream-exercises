@@ -60,7 +60,7 @@ module.exports = {
             pushCommit: 'Push your commit.',
             pullRepo: 'Your collaborator has pushed a new commit, so your repo is out of date! Pull the repo to get the latest changes.',
             mergeFile: 'There were no conflicts! If prompted, enter a log message for the automatically-generated merge commit.',
-            finalPush: 'Look at the merged changes in your editor to verify that the merge succeeded, then push the merged commit.'
+            finalPush: 'View the git history to see what your collaborator changed, and look at the merged changes in your editor to verify that the merge succeeded, then push the merged commit.'
         },
 
         feedback: {
