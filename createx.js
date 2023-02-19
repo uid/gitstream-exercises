@@ -80,7 +80,7 @@ function replaceNPMIgnores( src ) {
 replaceNPMIgnores( SRC_DIR )
 .then( utils.getExercises )
 .done( function( exerciseConfs ) {
-    fs.rmdirSync(GEN_DIR, { recursive: true });
+    fs.rmSync(GEN_DIR, { recursive: true, force: true });
     fs.mkdirSync(GEN_DIR, { recursive: true });
     var exercises = Object.keys( exerciseConfs ),
         orderRe = /^([0-9]+)-/,
