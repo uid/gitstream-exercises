@@ -1,7 +1,7 @@
 def is_code_good(safe_from_bugs, ready_for_change, easy_to_understand):
     """
-    Determines whether a piece of software meets 6.031 standards.
-    Software meets 6.031 standards if it is safe from bugs, ready for change, and easy to understand.
+    Determines whether a piece of software meets 6.102 standards.
+    Software meets 6.102 standards if it is safe from bugs, ready for change, and easy to understand.
     """
     pass # your code here!
 

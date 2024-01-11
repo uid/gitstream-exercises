@@ -37,7 +37,7 @@ populating the conf file.
 When you are finished designing an exercise, build them by running
 
 ```
-$ ./createx.js
+$ ./createx.js 
 ```
 
 Remember to either link your `gitstream-exercises` directory into GitStream's or edit the
