@@ -279,8 +279,7 @@ Note: templating is done using [Mustache syntax][mustache].
 
 1. Edit the exercise
 2. Build the exercises
-3. If you changed a `viewer` section, run `gulp browserify` in the GitStream repo
-4. Restart the GitStream server and view your changes
+3. If you changed a `viewer` section, restart the GitStream server and view your changes via `make run`
 
 
 [githooks]: http://git-scm.com/docs/githooks
