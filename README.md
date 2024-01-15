@@ -21,15 +21,15 @@ Exercises for use in the GitStream interactive Git tutor.
 
 1. Start by creating a new directory for the exercise in `src/exercises`.
    This will be the name of the repository that users clone.  
-   The name should have the format "N-exerciseName" where N is a number used to order
+   The name should have the format `N-exerciseName` where N is a number used to order
    the exercises.
-   Omitting the "N-" will cause the exercise to be ignored by GitStream.
-2. In the new exercise directory, create a configuration file, "conf.js".
+   Omitting the `N-` will cause the exercise to be ignored by GitStream.
+2. In the new exercise directory, create a configuration file, `conf.js`.
 3. If your exercise requires additional files (perhaps for committing to the exercise
-   repo or comparing with files in the repo), create the "resources" subdirectory.
+   repo or comparing with files in the repo), create the `resources` subdirectory.
 
 Great! Now you're ready to configure the exercise!
-Add any necessary resources to the "resources/" folder and then continue on to
+Add any necessary resources to the `resources/` folder and then continue on to
 populating the conf file.
 
 ## Building the Exercises
@@ -45,19 +45,18 @@ GitStream `package.json` to point `gitstream-exercises` to your own repo!
 
 ## Configuration File Format
 
-### conf.js template
+### `conf.js` template
 
-The following is a minimal template for the "conf.js" file.
+The following is a minimal template for the `conf.js` file.
 
-```javascript
+```js
 'use strict'
 
 // place constants and static functions here
 
 module.exports = {
-    // conf that applies to exercise, in general
+    // conf that applies to exercise (in general)
     global: {
-        timeLimit: Infinity // time limit in milliseconds
     },
 
     // description of server-side state machine
@@ -87,9 +86,8 @@ module.exports = {
 
 ### `global`
 
-`timeLimit:Number` -
-    The time limit of the exercise, in milliseconds.
-    A time limit of `Infinity` will hide the timer and allow free-play.
+* No specific constants are required. The `timeLimited` constant was previously required but
+has since been deprecated [January 2024].
 
 ### `machine`
 
@@ -102,7 +100,7 @@ Other than the `startState`, keys are the names of states and their values can b
 * `String` - Steps into the named state.
              `loopyState: 'loopyState'` is probably a bad idea.
 * `null`   - Denotes a halt state. Stepping into a halt state causes the "Done!" step
-             to be highlighted and stops the countdown timer
+             to be highlighted.
 * `Object` - The most common (and useful) option is an object mapping event names to
              callback functions performed when the event is triggered.  
              Ex. `onReceive: function( repo, action, info, done )`
