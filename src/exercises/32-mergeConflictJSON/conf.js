@@ -6,7 +6,6 @@ var GITIGNORE = '.gitignore',
 
 module.exports = {
     global: {
-        timeLimit: Infinity
     },
 
     machine: {

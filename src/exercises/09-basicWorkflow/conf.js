@@ -6,7 +6,6 @@ var EDITFILE = 'ready_for_6102.py',
 
 module.exports = {
     global: {
-        timeLimit: Infinity
     },
 
     machine: {

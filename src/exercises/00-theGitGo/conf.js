@@ -2,7 +2,6 @@
 
 module.exports = {
     global: {
-        timeLimit: Infinity
     },
 
     machine: {
