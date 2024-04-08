@@ -23,7 +23,7 @@ var utils = require('./utils'),
     VIEWERS_FILE = path.join( __dirname, 'viewers.js' ),
     REPOS_FILE = path.join( __dirname, 'repos.js' ),
 
-    ANGLER_URL = 'http://localhost/hooks'
+    ANGLER_URL = 'https://localhost:3000/gitstream/hooks'
 
 function createNewRepo( repoDir ) {
     var git = utils.git.bind.bind( utils.git, null, repoDir )
