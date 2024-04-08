@@ -47,7 +47,8 @@ GitStream `package.json` to point `gitstream-exercises` to your own repo!
 
 ### `conf.js` template
 
-The following is a minimal template for the `conf.js` file.
+The following is a minimal template for the `conf.js` file. More properties can exist
+for a given key, but these are the ones that are required.
 
 ```js
 'use strict'
