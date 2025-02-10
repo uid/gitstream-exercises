@@ -183,7 +183,7 @@ module.exports = {
 
         steps: {
             undoChange: 'Examine the <a href="http://www.git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History" target="_blank">commit log</a> and find the commit with the message "' + UNDO_LOG_MSG + '".&nbsp  Determine which word was added in that commit and remove it from <code>' + WORDS_LIST + '</code>. Add and commit the change. (hint:  try using <code>git <a href="http://git-scm.com/docs/git-show" target="_blank">show</a></code>)',
-            pushUndo: 'Push your changes.',
+            pushUndo: "Push your changes. (If this page does not advance after you push, try refreshing this page.)",
             pullRevert: 'Let\'s try undoing changes in another way. <a href="http://www.git-scm.com/docs/git-pull" target="_blank">Pull</a> the repo to get some new commits.',
             revertChange: 'Examine the <a href="http://www.git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History" target="_blank">log</a> to find the commit with message "' + REVERT_LOG_MSG + '" This time, use <a href="http://www.git-scm.com/docs/git-revert"><code>git revert</code></a> on the commit.',
             finalPush: 'Push your changes.'
